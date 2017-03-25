@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{48C0E1FA-7AE5-486B-8D17-B1FC224120CA}</ProjectGuid>
+    <ProjectGuid>{3BE32019-6889-4D48-8936-04C77863440B}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>SplineCam</RootNamespace>
-    <AssemblyName>SplineCam</AssemblyName>
+    <RootNamespace>SplineCAD</RootNamespace>
+    <AssemblyName>SplineCAD</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
