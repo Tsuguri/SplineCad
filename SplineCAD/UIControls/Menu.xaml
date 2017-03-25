@@ -1,0 +1,18 @@
+﻿<UserControl x:Class="SplineCAD.UIControls.Menu"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SplineCAD.UIControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="20" d:DesignWidth="400">
+    <Menu>
+        <MenuItem Header="File">
+            <MenuItem Header="Nothing here" />
+            <MenuItem Header="Here either" />
+        </MenuItem>
+        <MenuItem Header="Splines">
+            <MenuItem Header="Gidda man a cookie" />
+        </MenuItem>
+    </Menu>
+</UserControl>

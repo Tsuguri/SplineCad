@@ -4,16 +4,20 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SplineCAD"
+        xmlns:SCUI="clr-namespace:SplineCAD.UIControls"
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="20" />
             <RowDefinition />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition  Width="100"/>
         </Grid.ColumnDefinitions>
-        <WindowsFormsHost Initialized="SurfaceInitialized"  Grid.Column="0" Name="imageHost" />
+        <SCUI:Menu Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" />
+        <WindowsFormsHost Initialized="SurfaceInitialized"  Grid.Column="0" Grid.Row="1" Name="imageHost" />
+        <SCUI:RightSideTools Grid.Column="1" Grid.Row="1" />
     </Grid>
 </Window>
