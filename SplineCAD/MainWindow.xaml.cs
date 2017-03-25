@@ -13,8 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-using SplineCAD.Rendering;
 using System.Diagnostics;
+using OpenTK;
+using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
+
+using System.Windows.Forms.Integration;
+using System.Windows.Forms;
+using SplineCAD.Rendering;
 
 namespace SplineCAD
 {
@@ -23,31 +29,28 @@ namespace SplineCAD
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		GLSurface renderingSurface;
-		Stopwatch timer;
-
+		GLControl renderingSurface;
+		RenderingContext context;
 		public MainWindow()
 		{
 			OpenTK.Toolkit.Init();
+
 			InitializeComponent();
 		}
 
-		private void Window_Loaded(object sender, RoutedEventArgs e)
+		private void SurfaceInitialized(object sender, EventArgs e)
 		{
-			renderingSurface = new ProGLSurface();
-			imageHost.Child = renderingSurface;
-			timer = new Stopwatch();
-			CompositionTarget.Rendering += RenderGLSurface;
+			var flags = GraphicsContextFlags.Default;
+
+			renderingSurface = new GLControl(new GraphicsMode(32, 24), 2, 0, flags);
+			context= new RenderingContext(renderingSurface);
+
+			renderingSurface.MakeCurrent();
+			renderingSurface.Paint += context.Render; ;
+			renderingSurface.Dock = DockStyle.Fill;
+			(sender as WindowsFormsHost).Child = renderingSurface;
 		}
 
-		private void RenderGLSurface(object sender, EventArgs e)
-		{
-			timer.Stop();
 
-			float timeElapsed = (float)timer.Elapsed.TotalSeconds;
-			timer.Reset();
-			timer.Start();
-			renderingSurface.UpdateFrameData(timeElapsed);
-		}
 	}
 }

@@ -5,10 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SplineCAD"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525"
-        Loaded="Window_Loaded"
-        >
+        Title="MainWindow" Height="350" Width="525">
     <Grid>
-        <WindowsFormsHost Name="imageHost" />
+        <Grid.RowDefinitions>
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition  Width="100"/>
+        </Grid.ColumnDefinitions>
+        <WindowsFormsHost Initialized="SurfaceInitialized"  Grid.Column="0" Name="imageHost" />
     </Grid>
 </Window>
