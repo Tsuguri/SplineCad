@@ -44,7 +44,17 @@ namespace SplineCAD
 			InitializeComponent();
 		}
 
-		private void SurfaceInitialized(object sender, EventArgs e)
+		//private void SurfaceInitialized(object sender, EventArgs e)
+		//{
+			
+		//}
+
+		private void CompositionTargetOnRendering(object sender, EventArgs eventArgs)
+		{
+			context.Render();
+		}
+
+		private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
 		{
 			var flags = GraphicsContextFlags.Default;
 
@@ -52,19 +62,19 @@ namespace SplineCAD
 			context = new RenderingContext(renderingSurface);
 			context.MainData = MainWindowDataContext;
 			renderingSurface.MakeCurrent();
-
+			renderingSurface.Disposed+= RenderingSurfaceOnDisposed;
 			renderingSurface.Dock = DockStyle.Fill;
-			var windowsFormsHost = sender as WindowsFormsHost;
-			if (windowsFormsHost != null) windowsFormsHost.Child = renderingSurface;
-			else
-				throw new Exception("Application is broken, plz repair.");
+			imageHost.Child = renderingSurface;
+			//	throw new Exception("Application is broken, plz repair.");
 
-			CompositionTarget.Rendering+= CompositionTargetOnRendering;
+			CompositionTarget.Rendering += CompositionTargetOnRendering;
+			MainWindowDataContext.InitializeDataContext();
+
 		}
 
-		private void CompositionTargetOnRendering(object sender, EventArgs eventArgs)
+		private void RenderingSurfaceOnDisposed(object sender, EventArgs eventArgs)
 		{
-			context.Render();
+			MainWindowDataContext.OnDispose();
 		}
 	}
 }

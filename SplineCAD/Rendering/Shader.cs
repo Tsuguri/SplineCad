@@ -105,6 +105,20 @@ namespace SplineCAD.Rendering
 	{
 		public int ProgramId { get; private set; }
 
+		#region StaticFactory
+
+		public static Shader CreateShader(string vertexFileName, string fragmentFileName)
+		{
+			using (ShaderPart vertexPart = new ShaderPart(vertexFileName, ShaderType.VertexShader), fragmentPart = new ShaderPart(fragmentFileName, ShaderType.FragmentShader))
+			{
+				return new Shader(vertexPart,fragmentPart);
+			}
+		}
+
+		#endregion
+
+		#region Constructors
+
 		public Shader(params ShaderPart[] shaderParts)
 		{
 			int result;
@@ -125,11 +139,13 @@ namespace SplineCAD.Rendering
 
 				throw new Exception("Shader could not be linked: "+log);
 			}
-
 		}
 
+		#endregion
 
+		#region IDisposableImplementation
 
+		private bool iDisposed;
 
 		private void Free()
 		{
@@ -139,8 +155,6 @@ namespace SplineCAD.Rendering
 				ProgramId = 0;
 			}
 		}
-
-		private bool iDisposed;
 
 		public void Dispose()
 		{
@@ -163,10 +177,11 @@ namespace SplineCAD.Rendering
 			iDisposed = true;
 		}
 
-
 		~Shader()
 		{
 			Dispose(false);
 		}
+
+		#endregion
 	}
 }

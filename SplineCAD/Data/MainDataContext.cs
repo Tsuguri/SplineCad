@@ -8,6 +8,7 @@ using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using SplineCAD.Rendering;
 using SplineCAD.Utilities;
+using ShaderType = OpenTK.Graphics.OpenGL4.ShaderType;
 
 namespace SplineCAD.Data
 {
@@ -22,6 +23,8 @@ namespace SplineCAD.Data
 
 		private ICommand testButtonCommand;
 
+
+		private Shader testShader;
 		#endregion
 
 		#region Properties
@@ -36,12 +39,30 @@ namespace SplineCAD.Data
 
 		#endregion
 
+		public MainDataContext()
+		{
+		}
+
+		public void InitializeDataContext()
+		{
+			testShader = Shader.CreateShader("Shaders\\test.vert", "Shaders\\test.frag");
+		}
+
 		#region Rendering
 
 		public void Render()
 		{
 			if (changed)
 				GL.ClearColor(Color4.Beige);
+		}
+
+		#endregion
+
+		#region Dispose
+
+		public void OnDispose()
+		{
+			testShader.Dispose();
 		}
 
 		#endregion
