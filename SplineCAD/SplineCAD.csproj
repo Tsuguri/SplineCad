@@ -81,13 +81,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Data\MainDataContext.cs" />
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Rendering\RenderingContext.cs" />
+    <Compile Include="Rendering\Shader.cs" />
     <Compile Include="UIControls\Menu.xaml.cs">
       <DependentUpon>Menu.xaml</DependentUpon>
     </Compile>
     <Compile Include="UIControls\RightSideTools.xaml.cs">
       <DependentUpon>RightSideTools.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utilities\BindableObject.cs" />
+    <Compile Include="Utilities\CommandHandler.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

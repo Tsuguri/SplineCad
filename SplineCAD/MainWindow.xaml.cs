@@ -20,6 +20,8 @@ using OpenTK.Graphics.OpenGL;
 
 using System.Windows.Forms.Integration;
 using System.Windows.Forms;
+using System.Windows.Threading;
+using SplineCAD.Data;
 using SplineCAD.Rendering;
 
 namespace SplineCAD
@@ -29,12 +31,16 @@ namespace SplineCAD
 	/// </summary>
 	public partial class MainWindow : Window
 	{
+		internal MainDataContext MainWindowDataContext { get; set; }
 		GLControl renderingSurface;
 		RenderingContext context;
+		private DispatcherTimer timer;
+
 		public MainWindow()
 		{
 			OpenTK.Toolkit.Init();
-
+			MainWindowDataContext = new MainDataContext();
+			DataContext = MainWindowDataContext;
 			InitializeComponent();
 		}
 
@@ -43,14 +49,22 @@ namespace SplineCAD
 			var flags = GraphicsContextFlags.Default;
 
 			renderingSurface = new GLControl(new GraphicsMode(32, 24), 2, 0, flags);
-			context= new RenderingContext(renderingSurface);
-
+			context = new RenderingContext(renderingSurface);
+			context.MainData = MainWindowDataContext;
 			renderingSurface.MakeCurrent();
-			renderingSurface.Paint += context.Render; ;
+
 			renderingSurface.Dock = DockStyle.Fill;
-			(sender as WindowsFormsHost).Child = renderingSurface;
+			var windowsFormsHost = sender as WindowsFormsHost;
+			if (windowsFormsHost != null) windowsFormsHost.Child = renderingSurface;
+			else
+				throw new Exception("Application is broken, plz repair.");
+
+			CompositionTarget.Rendering+= CompositionTargetOnRendering;
 		}
 
-
+		private void CompositionTargetOnRendering(object sender, EventArgs eventArgs)
+		{
+			context.Render();
+		}
 	}
 }

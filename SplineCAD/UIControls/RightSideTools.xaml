@@ -6,9 +6,12 @@
              xmlns:local="clr-namespace:SplineCAD.UIControls"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
+    <StackPanel>
+        <Button Command="{Binding TestButtonCommand}">
+            Turbo test button
+        </Button>
         <TextBlock>
             super rzeczy
         </TextBlock>
-    </Grid>
+    </StackPanel>
 </UserControl>
