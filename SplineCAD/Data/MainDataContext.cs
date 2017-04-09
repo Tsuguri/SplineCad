@@ -23,8 +23,8 @@ namespace SplineCAD.Data
 
 		private ICommand testButtonCommand;
 
+		private Dictionary<string, Shader> Shaders { get; set; }
 
-		private Shader testShader;
 		#endregion
 
 		#region Properties
@@ -39,14 +39,40 @@ namespace SplineCAD.Data
 
 		#endregion
 
+		#region Initialization
+
 		public MainDataContext()
 		{
 		}
 
 		public void InitializeDataContext()
 		{
-			testShader = Shader.CreateShader("Shaders\\test.vert", "Shaders\\test.frag");
+			InitializeShaders();
+			InitializeMeshes();
+			InitializeTextures();
 		}
+
+		private void InitializeTextures()
+		{
+			// nothing here yet;
+		}
+
+		private void InitializeShaders()
+		{
+			Shaders = new Dictionary<string, Shader>
+			{
+				//here add shaders
+				//eg:
+				{"testShader", Shader.CreateShader("Shaders\\test.vert", "Shaders\\test.frag")}
+			};
+		}
+
+		private void InitializeMeshes()
+		{
+			//nothing here yet;
+		}
+
+		#endregion
 
 		#region Rendering
 
@@ -62,7 +88,10 @@ namespace SplineCAD.Data
 
 		public void OnDispose()
 		{
-			testShader.Dispose();
+			foreach (var shader in Shaders)
+			{
+				shader.Value.Dispose();
+			}
 		}
 
 		#endregion

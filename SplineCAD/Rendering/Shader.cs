@@ -10,6 +10,10 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace SplineCAD.Rendering
 {
+	/// <summary>
+	/// Do not use this manually withoud using(ShaderPart ... ) {}
+	/// ShaderPart is part of shader program, eg. VertexShader, FragmentShader, etc.
+	/// </summary>
 	public class ShaderPart : IDisposable
 	{
 		public int ShaderPartId
@@ -101,12 +105,21 @@ namespace SplineCAD.Rendering
 		#endregion
 	}
 
+	/// <summary>
+	/// Represents instance of shader program - linked parts, ready to invoke.
+	/// </summary>
 	public class Shader
 	{
+		/// <summary>
+		/// OpenGl ID of this shader
+		/// </summary>
 		public int ProgramId { get; private set; }
 
 		#region StaticFactory
 
+		/// <summary>
+		/// Creates shader automatically disposing shader parts (with using(){}).
+		/// </summary>
 		public static Shader CreateShader(string vertexFileName, string fragmentFileName)
 		{
 			using (ShaderPart vertexPart = new ShaderPart(vertexFileName, ShaderType.VertexShader), fragmentPart = new ShaderPart(fragmentFileName, ShaderType.FragmentShader))
@@ -156,6 +169,9 @@ namespace SplineCAD.Rendering
 			}
 		}
 
+		/// <summary>
+		/// Deletes shader from GPU memory. Use with caution.
+		/// </summary>
 		public void Dispose()
 		{
 			Dispose(true);
