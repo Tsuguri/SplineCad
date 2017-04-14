@@ -25,16 +25,17 @@ namespace SplineCAD.Rendering
 
 		public void Render()
 		{
+			GL.Viewport(0,0,renderingSurface.Width,renderingSurface.Height);
 			GL.ClearColor(Color4.Azure);
 
-
-			
-			MainData?.Render();
 
 			GL.Clear(
 				ClearBufferMask.ColorBufferBit |
 				ClearBufferMask.DepthBufferBit |
 				ClearBufferMask.StencilBufferBit);
+			MainData?.Render();
+
+
 
 			renderingSurface.SwapBuffers();
 		}

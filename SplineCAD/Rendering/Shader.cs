@@ -115,6 +115,11 @@ namespace SplineCAD.Rendering
 		/// </summary>
 		public int ProgramId { get; private set; }
 
+		public void Activate()
+		{
+			GL.UseProgram(ProgramId);
+		}
+
 		#region StaticFactory
 
 		/// <summary>

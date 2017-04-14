@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using SplineCAD.Objects;
 using SplineCAD.Rendering;
 using SplineCAD.Utilities;
 using ShaderType = OpenTK.Graphics.OpenGL4.ShaderType;
@@ -24,6 +25,10 @@ namespace SplineCAD.Data
 		private ICommand testButtonCommand;
 
 		private Dictionary<string, Shader> Shaders { get; set; }
+
+		private Dictionary<string,Mesh> Meshes { get; set; }
+
+		private List<int> sceneObjects;
 
 		#endregion
 
@@ -69,7 +74,10 @@ namespace SplineCAD.Data
 
 		private void InitializeMeshes()
 		{
-			//nothing here yet;
+			Meshes = new Dictionary<string, Mesh>
+			{
+				{"cubeMesh", new Cube() }
+			};
 		}
 
 		#endregion
@@ -80,6 +88,12 @@ namespace SplineCAD.Data
 		{
 			if (changed)
 				GL.ClearColor(Color4.Beige);
+
+			var shader = Shaders["testShader"];
+			var mesh = Meshes["cubeMesh"];
+
+			shader.Activate();
+			mesh.Render();
 		}
 
 		#endregion
