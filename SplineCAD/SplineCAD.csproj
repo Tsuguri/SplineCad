@@ -86,6 +86,7 @@
     <Compile Include="Objects\IPoint.cs" />
     <Compile Include="Objects\PointCollection.cs" />
     <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="Rendering\Camera.cs" />
     <Compile Include="Rendering\ExplicitMesh.cs" />
     <Compile Include="Rendering\Mesh.cs" />
     <Compile Include="Rendering\RenderingContext.cs" />
