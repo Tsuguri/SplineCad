@@ -18,8 +18,21 @@ namespace SplineCAD.Objects
 
 			private int ID { get; set; }
 
+			private Vector3 position;
 
-			public Vector3 Position { get; set; }
+			public Vector3 Position
+			{
+				get => position;
+				set
+				{
+					if(position==value)
+						return;
+					position = value;
+					OnChanged?.Invoke(this);
+				}
+			}
+
+			public event ChangedHandler OnChanged;
 		}
 
 		#endregion
