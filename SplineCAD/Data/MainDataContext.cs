@@ -30,6 +30,8 @@ namespace SplineCAD.Data
 
 		private List<int> sceneObjects;
 
+		private PointCollection points;
+
 		#endregion
 
 		#region Properties
@@ -54,12 +56,6 @@ namespace SplineCAD.Data
 		{
 			InitializeShaders();
 			InitializeMeshes();
-			InitializeTextures();
-		}
-
-		private void InitializeTextures()
-		{
-			// nothing here yet;
 		}
 
 		private void InitializeShaders()
@@ -68,7 +64,8 @@ namespace SplineCAD.Data
 			{
 				//here add shaders
 				//eg:
-				{"testShader", Shader.CreateShader("Shaders\\test.vert", "Shaders\\test.frag")}
+				{"testShader", Shader.CreateShader("Shaders\\test.vert", "Shaders\\test.frag")},
+				{"pointShader", Shader.CreateShader("Shaders\\pointShader.vert","Shaders\\pointShader.frag") }
 			};
 		}
 
@@ -78,6 +75,7 @@ namespace SplineCAD.Data
 			{
 				{"cubeMesh", new Cube() }
 			};
+			points = new PointCollection();
 		}
 
 		#endregion
@@ -91,9 +89,13 @@ namespace SplineCAD.Data
 
 			var shader = Shaders["testShader"];
 			var mesh = Meshes["cubeMesh"];
+			var ptShader = Shaders["pointShader"];
 
 			shader.Activate();
 			mesh.Render();
+
+			ptShader.Activate();
+			points.Render();
 		}
 
 		#endregion

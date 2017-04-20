@@ -12,35 +12,26 @@ namespace SplineCAD.Objects
 {
 	class Cube : Mesh
 	{
-		private int ID;
-		private int vao;
-		private int vbo;
-		private int ibo;
 
 		private int indicesCount;
 
 		public Cube()
 		{
-			vao = GL.GenVertexArray();
-			vbo = GL.GenBuffer();
-			ibo = GL.GenBuffer();
 			float size = 1;
 			float halfsize = size / 2.0f;
-			Vertex[] vertices = new Vertex[]
-			{
-				new Vertex(-halfsize, -halfsize, -halfsize),
-				new Vertex(-halfsize, -halfsize, halfsize),
-				new Vertex(halfsize, -halfsize, -halfsize),
-				new Vertex(halfsize, -halfsize, halfsize),
-				new Vertex(-halfsize, halfsize, -halfsize),
-				new Vertex(-halfsize, halfsize, halfsize),
-				new Vertex(halfsize, halfsize, -halfsize),
-				new Vertex(halfsize, halfsize, halfsize),
+			PositionVertex[] vertices = {
+				new PositionVertex(-halfsize, -halfsize, -halfsize),
+				new PositionVertex(-halfsize, -halfsize, halfsize),
+				new PositionVertex(halfsize, -halfsize, -halfsize),
+				new PositionVertex(halfsize, -halfsize, halfsize),
+				new PositionVertex(-halfsize, halfsize, -halfsize),
+				new PositionVertex(-halfsize, halfsize, halfsize),
+				new PositionVertex(halfsize, halfsize, -halfsize),
+				new PositionVertex(halfsize, halfsize, halfsize),
 			};
 
 
-		uint[] indices = new uint[]
-			{
+			uint[] indices = {
 				0,1,3, //down
 				0,3,2,
 
@@ -59,25 +50,7 @@ namespace SplineCAD.Objects
 
 			};
 
-			indicesCount = indices.Length;
-
-			GL.BindVertexArray(vao);
-
-			GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
-			GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(vertices.Length * Marshal.SizeOf<Vertex>()), vertices, BufferUsageHint.StaticDraw);
-
-			GL.BindBuffer(BufferTarget.ElementArrayBuffer, ibo);
-			GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(indices.Length * sizeof(uint)), indices, BufferUsageHint.StaticDraw);
-
-			vertices[0].SetGLAttributes();
-
-			GL.BindVertexArray(0);
-		}
-
-		public override void Render()
-		{
-			GL.BindVertexArray(vao);
-			GL.DrawElements(BeginMode.Triangles, indicesCount, DrawElementsType.UnsignedInt, 0);
+			Initialize(vertices,indices);
 		}
 	}
 }
