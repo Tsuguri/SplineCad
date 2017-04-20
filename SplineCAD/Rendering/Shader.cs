@@ -129,7 +129,7 @@ namespace SplineCAD.Rendering
 		{
 			using (ShaderPart vertexPart = new ShaderPart(vertexFileName, ShaderType.VertexShader), fragmentPart = new ShaderPart(fragmentFileName, ShaderType.FragmentShader))
 			{
-				return new Shader(vertexPart,fragmentPart);
+				return new Shader(vertexPart, fragmentPart);
 			}
 		}
 
@@ -144,19 +144,41 @@ namespace SplineCAD.Rendering
 
 			foreach (var shaderPart in shaderParts)
 			{
-				GL.AttachShader(ProgramId,shaderPart.ShaderPartId);
+				GL.AttachShader(ProgramId, shaderPart.ShaderPartId);
 			}
 
 			GL.LinkProgram(ProgramId);
 
-			GL.GetProgram(ProgramId,GetProgramParameterName.LinkStatus, out result);
+			GL.GetProgram(ProgramId, GetProgramParameterName.LinkStatus, out result);
 			if (result == 0)
 			{
 				var log = GL.GetProgramInfoLog(ProgramId);
 				GL.DeleteProgram(ProgramId);
 
-				throw new Exception("Shader could not be linked: "+log);
+				throw new Exception("Shader could not be linked: " + log);
 			}
+		}
+
+		#endregion
+
+		#region Binding
+
+		public int GetUniformLocation(string location)
+		{
+			int loc = GL.GetUniformLocation(ProgramId, location);
+			if (loc == -1)
+				throw new Exception("Location does not exist");
+			return loc;
+		}
+
+		public void Bind(int location, Vector3 vector)
+		{
+			GL.Uniform3(location,vector);
+		}
+
+		public void Bind(int location, Matrix4 matrix)
+		{
+			GL.UniformMatrix4(location,false,ref matrix);
 		}
 
 		#endregion

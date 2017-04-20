@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using SplineCAD.Objects;
@@ -26,9 +27,13 @@ namespace SplineCAD.Data
 
 		private Dictionary<string, Shader> Shaders { get; set; }
 
-		private Dictionary<string,Mesh> Meshes { get; set; }
+		private Dictionary<string, Mesh> Meshes { get; set; }
 
 		private List<int> sceneObjects;
+
+		private PointCollection points;
+
+		private Camera camera;
 
 		#endregion
 
@@ -54,12 +59,21 @@ namespace SplineCAD.Data
 		{
 			InitializeShaders();
 			InitializeMeshes();
-			InitializeTextures();
-		}
 
-		private void InitializeTextures()
-		{
-			// nothing here yet;
+
+			var pt1 = points.CreatePoint();
+			pt1.Position = new Vector3(0.5f, 0.5f, 1);
+			var pt2 = points.CreatePoint();
+			pt2.Position = new Vector3(-0.5f, -0.5f, 1);
+
+			var pt3 = points.CreatePoint();
+			pt3.Position = new Vector3(0.5f, -0.5f, 1);
+
+			var pt4 = points.CreatePoint();
+			pt4.Position = new Vector3(-0.5f, 0.5f, 1);
+
+			camera = new Camera();
+
 		}
 
 		private void InitializeShaders()
@@ -68,7 +82,8 @@ namespace SplineCAD.Data
 			{
 				//here add shaders
 				//eg:
-				{"testShader", Shader.CreateShader("Shaders\\test.vert", "Shaders\\test.frag")}
+				{"testShader", Shader.CreateShader("Shaders\\test.vert", "Shaders\\test.frag")},
+				{"pointShader", Shader.CreateShader("Shaders\\pointShader.vert","Shaders\\pointShader.frag") }
 			};
 		}
 
@@ -78,6 +93,7 @@ namespace SplineCAD.Data
 			{
 				{"cubeMesh", new Cube() }
 			};
+			points = new PointCollection();
 		}
 
 		#endregion
@@ -87,13 +103,22 @@ namespace SplineCAD.Data
 		public void Render()
 		{
 			if (changed)
+			{
 				GL.ClearColor(Color4.Beige);
+				GL.Clear(ClearBufferMask.ColorBufferBit);
+			}
 
 			var shader = Shaders["testShader"];
 			var mesh = Meshes["cubeMesh"];
+			var ptShader = Shaders["pointShader"];
 
 			shader.Activate();
 			mesh.Render();
+
+			ptShader.Activate();
+			points.Render(ptShader);
+
+
 		}
 
 		#endregion
