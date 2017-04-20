@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenTK;
+using OpenTK.Graphics.OpenGL;
 using SplineCAD.Rendering;
 
 namespace SplineCAD.Objects
@@ -39,9 +40,10 @@ namespace SplineCAD.Objects
 
 		public PointCollection()
 		{
-			var indices = new uint[] {0};
-			var vertices = new[] {new PositionVertex(0,0,0)};
-			mesh = new ExplicitMesh(vertices,indices);
+			var indices = new uint[] { 0 };
+			var vertices = new[] { new PositionVertex(0, 0, 0) };
+			mesh = new ExplicitMesh(vertices, indices, BeginMode.Points);
+			GL.PointSize(6);
 		}
 
 		#endregion
@@ -65,11 +67,16 @@ namespace SplineCAD.Objects
 				throw new ArgumentException("given point does not originate from this kind of collection");
 		}
 
-		public void Render()
+		public void Render(Shader shader)
 		{
+			var positionLoc = shader.GetUniformLocation("pointPosition");
 
+			foreach (var point in points)
+			{
+				shader.Bind(positionLoc,point.Position);
+				mesh.Render();
+			}
 
-			mesh.Render();
 		}
 	}
 }

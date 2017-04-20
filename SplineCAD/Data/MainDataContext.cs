@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using OpenTK;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using SplineCAD.Objects;
@@ -26,11 +27,13 @@ namespace SplineCAD.Data
 
 		private Dictionary<string, Shader> Shaders { get; set; }
 
-		private Dictionary<string,Mesh> Meshes { get; set; }
+		private Dictionary<string, Mesh> Meshes { get; set; }
 
 		private List<int> sceneObjects;
 
 		private PointCollection points;
+
+		private Camera camera;
 
 		#endregion
 
@@ -56,6 +59,21 @@ namespace SplineCAD.Data
 		{
 			InitializeShaders();
 			InitializeMeshes();
+
+
+			var pt1 = points.CreatePoint();
+			pt1.Position = new Vector3(0.5f, 0.5f, 1);
+			var pt2 = points.CreatePoint();
+			pt2.Position = new Vector3(-0.5f, -0.5f, 1);
+
+			var pt3 = points.CreatePoint();
+			pt3.Position = new Vector3(0.5f, -0.5f, 1);
+
+			var pt4 = points.CreatePoint();
+			pt4.Position = new Vector3(-0.5f, 0.5f, 1);
+
+			camera = new Camera();
+
 		}
 
 		private void InitializeShaders()
@@ -85,7 +103,10 @@ namespace SplineCAD.Data
 		public void Render()
 		{
 			if (changed)
+			{
 				GL.ClearColor(Color4.Beige);
+				GL.Clear(ClearBufferMask.ColorBufferBit);
+			}
 
 			var shader = Shaders["testShader"];
 			var mesh = Meshes["cubeMesh"];
@@ -95,7 +116,9 @@ namespace SplineCAD.Data
 			mesh.Render();
 
 			ptShader.Activate();
-			points.Render();
+			points.Render(ptShader);
+
+
 		}
 
 		#endregion

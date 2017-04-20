@@ -2,7 +2,9 @@
   
 layout (location = 0) in vec3 position;
 
+uniform vec3 pointPosition;
 void main()
 {
-    gl_Position = vec4(position.x, position.y, position.z, 1.0);
+	vec3 pos = position + pointPosition;
+    gl_Position = vec4(pos.x, pos.y, pos.z, 1.0);
 }

@@ -15,9 +15,11 @@ namespace SplineCAD.Rendering
 		private int ibo;
 
 		private int indicesCount;
+		private BeginMode mode;
 
-		protected void Initialize(PositionVertex[] vertices, uint[] indices)
+		protected void Initialize(PositionVertex[] vertices, uint[] indices, BeginMode mode = BeginMode.Triangles)
 		{
+			this.mode = mode;
 			vao = GL.GenVertexArray();
 			vbo = GL.GenBuffer();
 			ibo = GL.GenBuffer();
@@ -42,7 +44,7 @@ namespace SplineCAD.Rendering
 		{
 			GL.BindVertexArray(vao);
 			//GL.PointSize oraz BeginMode.Points
-			GL.DrawElements(BeginMode.Triangles, indicesCount, DrawElementsType.UnsignedInt, 0);
+			GL.DrawElements(mode, indicesCount, DrawElementsType.UnsignedInt, 0);
 		}
 	}
 }
