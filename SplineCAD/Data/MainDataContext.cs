@@ -62,18 +62,30 @@ namespace SplineCAD.Data
 
 
 			var pt1 = points.CreatePoint();
-			pt1.Position = new Vector3(0.5f, 0.5f, 1);
+			pt1.Position = new Vector3(1.0f, 1.0f, 1.0f);
 			var pt2 = points.CreatePoint();
-			pt2.Position = new Vector3(-0.5f, -0.5f, 1);
-
+			pt2.Position = new Vector3(-1.0f, -1.0f, 1.0f);
+            
 			var pt3 = points.CreatePoint();
-			pt3.Position = new Vector3(0.5f, -0.5f, 1);
+			pt3.Position = new Vector3(1.0f, -1.0f, 1.0f);
 
 			var pt4 = points.CreatePoint();
-			pt4.Position = new Vector3(-0.5f, 0.5f, 1);
+			pt4.Position = new Vector3(-1.0f, 1.0f, 1.0f);
 
-			camera = new Camera();
+            var pt5 = points.CreatePoint();
+            pt5.Position = new Vector3(1.0f, 1.0f, -1.0f);
 
+            var pt6 = points.CreatePoint();
+            pt6.Position = new Vector3(-1.0f, -1.0f, -1.0f);
+
+            var pt7 = points.CreatePoint();
+            pt7.Position = new Vector3(1.0f, -1.0f, -1.0f);
+
+            var pt8 = points.CreatePoint();
+            pt8.Position = new Vector3(-1.0f, 1.0f, -1.0f);
+
+            camera = new Camera(new Vector3(0.0f, 0.0f, 5.0f));
+            camera.Rotate(0, 30.0f);
 		}
 
 		private void InitializeShaders()
@@ -112,13 +124,19 @@ namespace SplineCAD.Data
 			var mesh = Meshes["cubeMesh"];
 			var ptShader = Shaders["pointShader"];
 
+            camera.Rotate(1f, 0);
+
 			shader.Activate();
-			mesh.Render();
+            shader.Bind(shader.GetUniformLocation("viewMatrix"), camera.ViewMatrix);
+            shader.Bind(shader.GetUniformLocation("projMatrix"), camera.ProjectionMatrix);
+            mesh.Render();
 
 			ptShader.Activate();
-			points.Render(ptShader);
+            ptShader.Bind(ptShader.GetUniformLocation("viewMatrix"), camera.ViewMatrix);
+            ptShader.Bind(ptShader.GetUniformLocation("projMatrix"), camera.ProjectionMatrix);
+            points.Render(ptShader);
 
-
+            
 		}
 
 		#endregion

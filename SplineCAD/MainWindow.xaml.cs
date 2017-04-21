@@ -41,6 +41,7 @@ namespace SplineCAD
 			OpenTK.Toolkit.Init();
 			MainWindowDataContext = new MainDataContext();
 			DataContext = MainWindowDataContext;
+            
 			InitializeComponent();
 		}
 

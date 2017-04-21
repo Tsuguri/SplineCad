@@ -17,7 +17,7 @@ namespace SplineCAD.Objects
 
 		public Cube()
 		{
-			float size = 1;
+			float size = 2;
 			float halfsize = size / 2.0f;
 			PositionVertex[] vertices = {
 				new PositionVertex(-halfsize, -halfsize, -halfsize),
@@ -36,7 +36,7 @@ namespace SplineCAD.Objects
 				0,3,2,
 
 				4,5,6, //up
-				4,6,7,
+				5,6,7,
 
 				1,5,0, //left
 				0,5,4,
@@ -46,8 +46,6 @@ namespace SplineCAD.Objects
 
 				4,0,6, //front
 				0,6,2
-
-
 			};
 
 			Initialize(vertices,indices);
