@@ -35,6 +35,7 @@ namespace SplineCAD
 		GLControl renderingSurface;
 		RenderingContext context;
 		private DispatcherTimer timer;
+        private System.Drawing.Point mousePos;
 
 		public MainWindow()
 		{
@@ -63,7 +64,9 @@ namespace SplineCAD
 			context = new RenderingContext(renderingSurface);
 			context.MainData = MainWindowDataContext;
 			renderingSurface.MakeCurrent();
-			renderingSurface.Disposed+= RenderingSurfaceOnDisposed;
+            renderingSurface.Resize += RenderingSurfaceResized;
+            renderingSurface.MouseMove += RenderingSurface_MouseMove;
+			renderingSurface.Disposed += RenderingSurfaceOnDisposed;
 			renderingSurface.Dock = DockStyle.Fill;
 			imageHost.Child = renderingSurface;
 			//	throw new Exception("Application is broken, plz repair.");
@@ -73,7 +76,24 @@ namespace SplineCAD
 
 		}
 
-		private void RenderingSurfaceOnDisposed(object sender, EventArgs eventArgs)
+        private void RenderingSurface_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            System.Drawing.Point p = e.Location;
+
+            if (e.Button == MouseButtons.Right)
+                MainWindowDataContext.MainCamera.Zoom(0.01f * (p.Y - mousePos.Y));
+            if (e.Button == MouseButtons.Left)
+                MainWindowDataContext.MainCamera.Rotate(mousePos.X - p.X, p.Y - mousePos.Y);
+                
+            mousePos = p;
+        }
+
+        private void RenderingSurfaceResized(object sender, EventArgs e)
+        {
+            MainWindowDataContext.MainCamera?.CreateProjection(1.0f, 100.0f, 45.0f, renderingSurface.Width /(float) renderingSurface.Height);
+        }
+
+        private void RenderingSurfaceOnDisposed(object sender, EventArgs eventArgs)
 		{
 			MainWindowDataContext.OnDispose();
 		}

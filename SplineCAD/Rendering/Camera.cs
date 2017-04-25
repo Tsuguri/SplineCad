@@ -109,14 +109,14 @@ namespace SplineCAD.Rendering
         {
             position += position * d;
 
-            viewMatrix.Row0.W = position.X;
-            viewMatrix.Row1.W = position.Y;
-            viewMatrix.Row2.W = position.Z;
+            viewMatrix.Row0.W = -position.X;
+            viewMatrix.Row1.W = -position.Y;
+            viewMatrix.Row2.W = -position.Z;
         }
 
         public void CreateProjection(float n, float f, float fov, float a)
         {
-            projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(fov, a, n, f);
+            projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(DegreeToRadian(fov), a, n, f);
         }
         #endregion
     }

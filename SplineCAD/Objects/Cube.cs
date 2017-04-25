@@ -32,23 +32,41 @@ namespace SplineCAD.Objects
 
 
 			uint[] indices = {
-				0,1,3, //down
-				0,3,2,
+				//0,1,3, //down
+				//0,3,2,
 
-				4,5,6, //up
-				5,6,7,
+				//4,5,6, //up
+				//5,6,7,
 
-				1,5,0, //left
-				0,5,4,
+				//1,5,0, //left
+				//0,5,4,
 
-				2,6,3, //right
-				3,6,7,
+				//2,6,3, //right
+				//3,6,7,
 
-				4,0,6, //front
-				0,6,2
-			};
+				//4,0,6, //front
+				//0,6,2
 
-			Initialize(vertices,indices);
+                0,1,
+                2,3,
+
+                3,1,        
+                2,0,
+
+                4,5,
+                6,7,
+
+                5,7,                
+                4,6,
+
+                1,5,
+                0,4,
+
+                2,6,
+                3,7,
+            };
+
+			Initialize(vertices,indices, BeginMode.Lines);
 		}
 	}
 }

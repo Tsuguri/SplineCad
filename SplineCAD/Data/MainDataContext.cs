@@ -47,6 +47,8 @@ namespace SplineCAD.Data
 			changed = !changed;
 		}
 
+        public Camera MainCamera { get => camera; }
+
 		#endregion
 
 		#region Initialization
@@ -63,6 +65,7 @@ namespace SplineCAD.Data
 
 			var pt1 = points.CreatePoint();
 			pt1.Position = new Vector3(1.0f, 1.0f, 1.0f);
+
 			var pt2 = points.CreatePoint();
 			pt2.Position = new Vector3(-1.0f, -1.0f, 1.0f);
             
@@ -85,7 +88,6 @@ namespace SplineCAD.Data
             pt8.Position = new Vector3(-1.0f, 1.0f, -1.0f);
 
             camera = new Camera(new Vector3(0.0f, 0.0f, 5.0f));
-            camera.Rotate(0, 30.0f);
 		}
 
 		private void InitializeShaders()
@@ -123,8 +125,6 @@ namespace SplineCAD.Data
 			var shader = Shaders["testShader"];
 			var mesh = Meshes["cubeMesh"];
 			var ptShader = Shaders["pointShader"];
-
-            camera.Rotate(1f, 0);
 
 			shader.Activate();
             shader.Bind(shader.GetUniformLocation("viewMatrix"), camera.ViewMatrix);
