@@ -95,9 +95,9 @@ namespace SplineCAD.Rendering
                       Math.Cos(DegreeToRadian(pitch)));
             front.Normalize();
 
-            right = Vector3.Cross(front, upWorld);
+            right = Vector3.Cross(-front, upWorld);
             right.Normalize();
-            up = Vector3.Cross(right, front);
+            up = Vector3.Cross(right, -front);
             up.Normalize();
 
             viewMatrix.Row0.Xyz = right;
