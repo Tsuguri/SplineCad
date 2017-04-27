@@ -101,11 +101,17 @@
     <Compile Include="UIControls\Menu.xaml.cs">
       <DependentUpon>Menu.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UIControls\numericSlider.xaml.cs">
+      <DependentUpon>numericSlider.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UIControls\ObjectsList.xaml.cs">
       <DependentUpon>ObjectsList.xaml</DependentUpon>
     </Compile>
     <Compile Include="UIControls\RightSideTools.xaml.cs">
       <DependentUpon>RightSideTools.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UIControls\SelectedItemDescription.xaml.cs">
+      <DependentUpon>SelectedItemDescription.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utilities\BindableObject.cs" />
     <Compile Include="Utilities\CommandHandler.cs" />
@@ -125,11 +131,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UIControls\numericSlider.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UIControls\ObjectsList.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UIControls\RightSideTools.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UIControls\SelectedItemDescription.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -18,6 +18,7 @@ namespace SplineCAD.Objects
 			{
 				polygonVisible = value;
 				OnPropertyChanged();
+				VisibilityChanged();
 			}
 		}
 
@@ -30,6 +31,7 @@ namespace SplineCAD.Objects
 			{
 				fillSurface = value;
 				OnPropertyChanged();
+				VisibilityChanged();
 			}
 		}
 		private int patchDivX = 10;
@@ -43,6 +45,7 @@ namespace SplineCAD.Objects
 					return;
 				patchDivX = value;
 				OnPropertyChanged();
+				PatchDivChanged();
 			}
 		}
 
@@ -57,7 +60,16 @@ namespace SplineCAD.Objects
 					return;
 				patchDivY = value;
 				OnPropertyChanged();
+				PatchDivChanged();
 			}
+		}
+
+		protected virtual void PatchDivChanged()
+		{
+		}
+
+		protected virtual void VisibilityChanged()
+		{
 		}
 	}
 }

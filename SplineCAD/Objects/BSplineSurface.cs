@@ -22,8 +22,17 @@ namespace SplineCAD.Objects
 		private int patchesX;
 		private int patchesY;
 
-		private Shader surfaceShader;
-		private Shader polygonShader;
+		private readonly Shader surfaceShader;
+		private readonly Shader polygonShader;
+
+		private bool divChanged = false;
+
+
+		protected override void PatchDivChanged()
+		{
+			base.PatchDivChanged();
+			divChanged = true;
+		}
 
 		public BSplineSurface(MainDataContext data, Shader surfaceShader, Shader polygonShader, IPoint[,] controlPoints)
 		{
@@ -47,6 +56,12 @@ namespace SplineCAD.Objects
 
 		public override void Render()
 		{
+			if (divChanged)
+			{
+				divChanged = false;
+				surfaceMesh?.Dispose();
+				surfaceMesh = new SurfaceMesh((uint)PatchDivX,(uint)PatchDivY);
+			}
 			if (PolygonVisible)
 			{
 				polygonShader.Activate();
