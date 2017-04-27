@@ -52,5 +52,10 @@ namespace SplineCAD.Rendering
 		{
 			mesh.Render();
 		}
+
+		public void Dispose()
+		{
+			mesh.Dispose();
+		}
 	}
 }

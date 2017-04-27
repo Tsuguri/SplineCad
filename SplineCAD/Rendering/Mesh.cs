@@ -46,5 +46,26 @@ namespace SplineCAD.Rendering
 			//GL.PointSize oraz BeginMode.Points
 			GL.DrawElements(mode, indicesCount, DrawElementsType.UnsignedInt, 0);
 		}
+
+		public virtual void Dispose()
+		{
+			if (ibo != 0)
+			{
+				GL.DeleteBuffer(ibo);
+				ibo = 0;
+			}
+
+			if (vbo != 0)
+			{
+				GL.DeleteBuffer(vbo);
+				vbo = 0;
+			}
+
+			if (vao != 0)
+			{
+				GL.DeleteVertexArray(vao);
+				vao = 0;
+			}
+		}
 	}
 }

@@ -91,13 +91,17 @@
     <Compile Include="Rendering\ExplicitMesh.cs" />
     <Compile Include="Rendering\Mesh.cs" />
     <Compile Include="Rendering\RectangesPolygonMesh.cs" />
-    <Compile Include="Rendering\Renderable.cs" />
+    <Compile Include="Rendering\Model.cs" />
     <Compile Include="Rendering\RenderingContext.cs" />
     <Compile Include="Rendering\SelfActualizingMesh.cs" />
     <Compile Include="Rendering\Shader.cs" />
     <Compile Include="Rendering\PositionVertex.cs" />
+    <Compile Include="Rendering\SurfaceMesh.cs" />
     <Compile Include="UIControls\Menu.xaml.cs">
       <DependentUpon>Menu.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UIControls\ObjectsList.xaml.cs">
+      <DependentUpon>ObjectsList.xaml</DependentUpon>
     </Compile>
     <Compile Include="UIControls\RightSideTools.xaml.cs">
       <DependentUpon>RightSideTools.xaml</DependentUpon>
@@ -117,6 +121,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="UIControls\Menu.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UIControls\ObjectsList.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -149,6 +157,8 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Shaders\BsplineSurface.vert" />
+    <None Include="Shaders\BsplineSurface.frag" />
     <None Include="Shaders\LineShader.frag" />
     <None Include="Shaders\LineShader.vert" />
     <None Include="Shaders\pointShader.frag" />

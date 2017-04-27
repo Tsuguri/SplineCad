@@ -106,7 +106,7 @@ namespace SplineCAD.Rendering
 	{
 		public delegate void OnActivate(Shader shader);
 
-		public OnActivate OnActivateMethod { get; set; } = null;
+		public event OnActivate OnActivateMethod;
 
 		/// <summary>
 		/// OpenGl ID of this shader
