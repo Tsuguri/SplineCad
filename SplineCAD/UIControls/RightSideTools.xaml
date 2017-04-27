@@ -7,12 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <StackPanel>
-        <Button Command="{Binding TestButtonCommand}">
-            Turbo test button
-        </Button>
-        <TextBlock>
-            super rzeczy
-        </TextBlock>
+        <local:SelectedItemDescription DataContext="{Binding SelectedModel}"></local:SelectedItemDescription>
         <local:ObjectsList></local:ObjectsList>
     </StackPanel>
 </UserControl>
