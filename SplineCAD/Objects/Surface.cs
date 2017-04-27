@@ -10,13 +10,26 @@ using SplineCAD.Rendering;
 
 namespace SplineCAD.Objects
 {
-	public class Surface : Rendering.Renderable
+	public class Surface : Renderable
 	{
 		private IPoint[,] points;
 
 		private MainDataContext sceneData;
 
-		private SelfActualizingMesh mesh;
+		private readonly RectangesPolygonMesh mesh;
+
+		private bool polygonVisible;
+
+		public bool PolygonVisible
+		{
+			get => polygonVisible;
+			set
+			{
+				polygonVisible = value;
+				OnPropertyChanged();
+			}
+		}
+
 
 		public Surface(MainDataContext data)
 		{
@@ -30,25 +43,12 @@ namespace SplineCAD.Objects
 					points[i, j] = sceneData.CreatePoint();
 					points[i, j].Position = new Vector3(i, (float)Math.Sin(0.5 * i), j);
 				}
-			int xDiv = points.GetLength(0);
-			int yDiv = points.GetLength(1);
-
-			var vertices = new List<IPoint>(xDiv*yDiv);
-			var indices = new uint[((xDiv - 1) * (yDiv - 1) * 2 + xDiv + yDiv - 2) * 2];
-			for (int i = 0; i < points.GetLength(0); i++)
-				for (int j = 0; j < points.GetLength(1); j++)
-				{
-					vertices.Add(points[i, j]);
-				}
-
-
-
-			mesh = new SelfActualizingMesh(vertices, indices, BeginMode.Lines);
+			mesh = new RectangesPolygonMesh(points);
 		}
 
 		public override void Render()
 		{
-
+			mesh.Render();
 		}
 	}
 }

@@ -12,6 +12,7 @@ namespace SplineCAD.Rendering
 	{
 		private readonly List<IPoint> points;
 
+		private bool changed = false;
 
 		public SelfActualizingMesh(List<IPoint> points, uint[] indices, BeginMode mode)
 		{
@@ -20,12 +21,13 @@ namespace SplineCAD.Rendering
 			var p = points.Select(x => new PositionVertex(x.Position)).ToArray();
 			points.ForEach(x => x.OnChanged += OnIPointChanged);
 			Initialize(p, indices, mode);
+			changed = true;
 
 		}
 
 		private void OnIPointChanged(IPoint point)
 		{
-			throw new NotImplementedException();
+			changed = true;
 		}
 
 		public override void Render()

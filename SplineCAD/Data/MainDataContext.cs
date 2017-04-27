@@ -104,18 +104,20 @@ namespace SplineCAD.Data
 				//here add shaders
 				//eg:
 				{"testShader", Shader.CreateShader("Shaders\\test.vert", "Shaders\\test.frag")},
-				{"pointShader", Shader.CreateShader("Shaders\\pointShader.vert","Shaders\\pointShader.frag") }
+				{"pointShader", Shader.CreateShader("Shaders\\pointShader.vert","Shaders\\pointShader.frag") },
+				{"LineShader", Shader.CreateShader("Shaders\\LineShader.vert","Shaders\\LineShader.frag") }
 			};
 
-			Shader.OnActivate standardShaderDelegate = shader =>
+			void StandardShaderDelegate(Shader shader)
 			{
 				shader.Bind(shader.GetUniformLocation("viewMatrix"), camera.ViewMatrix);
 				shader.Bind(shader.GetUniformLocation("projMatrix"), camera.ProjectionMatrix);
-			};
+			}
 
-			Shaders["testShader"].OnActivateMethod = standardShaderDelegate;
+			Shaders["testShader"].OnActivateMethod = StandardShaderDelegate;
 
-			Shaders["pointShader"].OnActivateMethod = standardShaderDelegate;
+			Shaders["pointShader"].OnActivateMethod = StandardShaderDelegate;
+			Shaders["LineShader"].OnActivateMethod = StandardShaderDelegate;
 
 
 		}
@@ -153,7 +155,7 @@ namespace SplineCAD.Data
 			var shader = Shaders["testShader"];
 			var mesh = Meshes["cubeMesh"];
 			var ptShader = Shaders["pointShader"];
-
+			var lineShader = Shaders["LineShader"];
 			shader.Activate();
 			mesh.Render();
 
@@ -161,6 +163,7 @@ namespace SplineCAD.Data
 
 			points.Render(ptShader);
 
+			lineShader.Activate();
 			foreach (var sceneObject in sceneObjects)
 			{
 				//jakieś bindowanie uniformów.

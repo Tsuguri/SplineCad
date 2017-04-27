@@ -90,6 +90,7 @@
     <Compile Include="Rendering\Camera.cs" />
     <Compile Include="Rendering\ExplicitMesh.cs" />
     <Compile Include="Rendering\Mesh.cs" />
+    <Compile Include="Rendering\RectangesPolygonMesh.cs" />
     <Compile Include="Rendering\Renderable.cs" />
     <Compile Include="Rendering\RenderingContext.cs" />
     <Compile Include="Rendering\SelfActualizingMesh.cs" />
@@ -148,6 +149,8 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Shaders\LineShader.frag" />
+    <None Include="Shaders\LineShader.vert" />
     <None Include="Shaders\pointShader.frag" />
     <None Include="Shaders\pointShader.vert" />
     <None Include="Shaders\test.frag" />
