@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using SplineCAD.Rendering;
+using System.Collections;
 
 namespace SplineCAD.Objects
 {
-	public class PointCollection
+	public class PointCollection : IEnumerable
 	{
 		#region Types
 
@@ -91,5 +92,10 @@ namespace SplineCAD.Objects
 			}
 
 		}
-	}
+
+        public IEnumerator GetEnumerator()
+        {
+            return points.GetEnumerator();
+        }
+    }
 }
