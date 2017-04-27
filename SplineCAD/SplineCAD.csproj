@@ -85,11 +85,14 @@
     <Compile Include="Objects\Cube.cs" />
     <Compile Include="Objects\IPoint.cs" />
     <Compile Include="Objects\PointCollection.cs" />
+    <Compile Include="Objects\Surface.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Rendering\Camera.cs" />
     <Compile Include="Rendering\ExplicitMesh.cs" />
     <Compile Include="Rendering\Mesh.cs" />
+    <Compile Include="Rendering\Renderable.cs" />
     <Compile Include="Rendering\RenderingContext.cs" />
+    <Compile Include="Rendering\SelfActualizingMesh.cs" />
     <Compile Include="Rendering\Shader.cs" />
     <Compile Include="Rendering\PositionVertex.cs" />
     <Compile Include="UIControls\Menu.xaml.cs">

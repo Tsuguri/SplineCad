@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 
 namespace SplineCAD.Rendering
@@ -20,7 +15,7 @@ namespace SplineCAD.Rendering
 		{ get; set; }
 
 		public ShaderType Type { get; private set; }
-
+		public bool IDisposed { get => iDisposed; set => iDisposed = value; }
 
 		private void CreateFromFile(string filename, ShaderType type)
 		{
@@ -33,7 +28,6 @@ namespace SplineCAD.Rendering
 			catch (Exception e)
 			{
 				throw new Exception("Loading shader failed: ", e);
-				throw;
 			}
 			CreateFromCode(code, type);
 		}
@@ -57,7 +51,7 @@ namespace SplineCAD.Rendering
 
 		#region IDispisable
 
-		private bool iDisposed = false;
+		private bool iDisposed;
 
 		public ShaderPart(string fileName, ShaderType type)
 		{
@@ -73,9 +67,9 @@ namespace SplineCAD.Rendering
 
 		protected virtual void Dispose(bool disposing)
 		{
-			if (iDisposed)
+			if (IDisposed)
 				return;
-			iDisposed = true;
+			IDisposed = true;
 
 			if (disposing)
 			{
@@ -110,6 +104,10 @@ namespace SplineCAD.Rendering
 	/// </summary>
 	public class Shader
 	{
+		public delegate void OnActivate(Shader shader);
+
+		public OnActivate OnActivateMethod { get; set; } = null;
+
 		/// <summary>
 		/// OpenGl ID of this shader
 		/// </summary>
@@ -118,6 +116,8 @@ namespace SplineCAD.Rendering
 		public void Activate()
 		{
 			GL.UseProgram(ProgramId);
+
+			OnActivateMethod?.Invoke(this);
 		}
 
 		#region StaticFactory
@@ -173,12 +173,12 @@ namespace SplineCAD.Rendering
 
 		public void Bind(int location, Vector3 vector)
 		{
-			GL.Uniform3(location,vector);
+			GL.Uniform3(location, vector);
 		}
 
 		public void Bind(int location, Matrix4 matrix)
 		{
-			GL.UniformMatrix4(location,false,ref matrix);
+			GL.UniformMatrix4(location, false, ref matrix);
 		}
 
 		#endregion

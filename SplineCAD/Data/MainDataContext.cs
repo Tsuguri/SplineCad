@@ -29,7 +29,7 @@ namespace SplineCAD.Data
 
 		private Dictionary<string, Mesh> Meshes { get; set; }
 
-		private List<int> sceneObjects;
+		private List<Renderable> sceneObjects;
 
 		private PointCollection points;
 
@@ -47,7 +47,7 @@ namespace SplineCAD.Data
 			changed = !changed;
 		}
 
-        public Camera MainCamera { get => camera; }
+		public Camera MainCamera { get => camera; }
 
 		#endregion
 
@@ -61,6 +61,7 @@ namespace SplineCAD.Data
 		{
 			InitializeShaders();
 			InitializeMeshes();
+			sceneObjects = new List<Renderable>();
 
 
 			var pt1 = points.CreatePoint();
@@ -68,26 +69,32 @@ namespace SplineCAD.Data
 
 			var pt2 = points.CreatePoint();
 			pt2.Position = new Vector3(-1.0f, -1.0f, 1.0f);
-            
+
 			var pt3 = points.CreatePoint();
 			pt3.Position = new Vector3(1.0f, -1.0f, 1.0f);
 
 			var pt4 = points.CreatePoint();
 			pt4.Position = new Vector3(-1.0f, 1.0f, 1.0f);
 
-            var pt5 = points.CreatePoint();
-            pt5.Position = new Vector3(1.0f, 1.0f, -1.0f);
+			var pt5 = points.CreatePoint();
+			pt5.Position = new Vector3(1.0f, 1.0f, -1.0f);
 
-            var pt6 = points.CreatePoint();
-            pt6.Position = new Vector3(-1.0f, -1.0f, -1.0f);
+			var pt6 = points.CreatePoint();
+			pt6.Position = new Vector3(-1.0f, -1.0f, -1.0f);
 
-            var pt7 = points.CreatePoint();
-            pt7.Position = new Vector3(1.0f, -1.0f, -1.0f);
+			var pt7 = points.CreatePoint();
+			pt7.Position = new Vector3(1.0f, -1.0f, -1.0f);
 
-            var pt8 = points.CreatePoint();
-            pt8.Position = new Vector3(-1.0f, 1.0f, -1.0f);
+			var pt8 = points.CreatePoint();
+			pt8.Position = new Vector3(-1.0f, 1.0f, -1.0f);
 
-            camera = new Camera(new Vector3(0.0f, 0.0f, 5.0f));
+
+
+			camera = new Camera(new Vector3(0.0f, 0.0f, 5.0f));
+
+			var surface = new Surface(this);
+
+			sceneObjects.Add(surface);
 		}
 
 		private void InitializeShaders()
@@ -99,6 +106,18 @@ namespace SplineCAD.Data
 				{"testShader", Shader.CreateShader("Shaders\\test.vert", "Shaders\\test.frag")},
 				{"pointShader", Shader.CreateShader("Shaders\\pointShader.vert","Shaders\\pointShader.frag") }
 			};
+
+			Shader.OnActivate standardShaderDelegate = shader =>
+			{
+				shader.Bind(shader.GetUniformLocation("viewMatrix"), camera.ViewMatrix);
+				shader.Bind(shader.GetUniformLocation("projMatrix"), camera.ProjectionMatrix);
+			};
+
+			Shaders["testShader"].OnActivateMethod = standardShaderDelegate;
+
+			Shaders["pointShader"].OnActivateMethod = standardShaderDelegate;
+
+
 		}
 
 		private void InitializeMeshes()
@@ -108,6 +127,15 @@ namespace SplineCAD.Data
 				{"cubeMesh", new Cube() }
 			};
 			points = new PointCollection();
+		}
+
+		#endregion
+
+		#region ObjectCreation
+
+		public IPoint CreatePoint()
+		{
+			return points.CreatePoint();
 		}
 
 		#endregion
@@ -127,16 +155,19 @@ namespace SplineCAD.Data
 			var ptShader = Shaders["pointShader"];
 
 			shader.Activate();
-            shader.Bind(shader.GetUniformLocation("viewMatrix"), camera.ViewMatrix);
-            shader.Bind(shader.GetUniformLocation("projMatrix"), camera.ProjectionMatrix);
-            mesh.Render();
+			mesh.Render();
 
 			ptShader.Activate();
-            ptShader.Bind(ptShader.GetUniformLocation("viewMatrix"), camera.ViewMatrix);
-            ptShader.Bind(ptShader.GetUniformLocation("projMatrix"), camera.ProjectionMatrix);
-            points.Render(ptShader);
 
-            
+			points.Render(ptShader);
+
+			foreach (var sceneObject in sceneObjects)
+			{
+				//jakieś bindowanie uniformów.
+
+				sceneObject.Render();
+			}
+
 		}
 
 		#endregion
