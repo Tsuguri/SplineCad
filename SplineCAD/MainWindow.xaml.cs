@@ -68,7 +68,7 @@ namespace SplineCAD
             renderingSurface.MouseMove += RenderingSurface_MouseMove;
 			renderingSurface.Disposed += RenderingSurfaceOnDisposed;
 			renderingSurface.Dock = DockStyle.Fill;
-			imageHost.Child = renderingSurface;
+			ImageHost.Child = renderingSurface;
 			//	throw new Exception("Application is broken, plz repair.");
 
 			CompositionTarget.Rendering += CompositionTargetOnRendering;

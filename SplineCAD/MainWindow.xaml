@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:SplineCAD"
         xmlns:SCUI="clr-namespace:SplineCAD.UIControls"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525"
+        
+        Title="MainWindow" Height="720" Width="1280"
         Loaded="MainWindow_OnLoaded">
     <Grid>
         <Grid.RowDefinitions>
@@ -15,10 +16,15 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition  Width="100"/>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition  Width="auto"/>
         </Grid.ColumnDefinitions>
-        <SCUI:Menu Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" />
-        <WindowsFormsHost  Grid.Column="0" Grid.Row="1" Name="imageHost" />
-        <SCUI:RightSideTools Grid.Column="1" Grid.Row="1" />
+        <SCUI:Menu Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" />
+        <WindowsFormsHost  Grid.Column="0" Grid.Row="1" Name="ImageHost" />
+        <GridSplitter Grid.Row="1" Grid.Column="1" Margin="2,0,2,0"
+                      Width="3" Background="DarkGray" 
+                      VerticalAlignment="Stretch" 
+                      HorizontalAlignment="Center"  />
+        <SCUI:RightSideTools Grid.Column="2" Grid.Row="1" Width="200" />
     </Grid>
 </Window>

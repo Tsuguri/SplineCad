@@ -85,6 +85,7 @@
     <Compile Include="Objects\Cube.cs" />
     <Compile Include="Objects\IPoint.cs" />
     <Compile Include="Objects\PointCollection.cs" />
+    <Compile Include="Objects\BSplineSurface.cs" />
     <Compile Include="Objects\Surface.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Rendering\Camera.cs" />

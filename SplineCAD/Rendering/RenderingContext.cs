@@ -27,7 +27,7 @@ namespace SplineCAD.Rendering
 		{
 			GL.Viewport(0,0,renderingSurface.Width,renderingSurface.Height);
 			GL.ClearColor(Color4.Azure);
-
+			GL.Enable(EnableCap.DepthTest);
 
 			GL.Clear(
 				ClearBufferMask.ColorBufferBit |

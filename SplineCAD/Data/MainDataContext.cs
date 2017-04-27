@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
@@ -22,6 +23,7 @@ namespace SplineCAD.Data
 
 		private ICommand testButtonCommand;
 		private ICommand removeSelectedCommand;
+		private ICommand createBsplineCommand;
 
 		private bool changed;
 
@@ -49,6 +51,9 @@ namespace SplineCAD.Data
 
 		public ICommand RemoveSelectedCommand => removeSelectedCommand ??
 												 (removeSelectedCommand = new CommandHandler(RemoveSelected));
+
+		public ICommand CreateBsplineCommand => createBsplineCommand ??
+		                                        (createBsplineCommand = new CommandHandler(CreateBSplineMesh));
 
 		public ObservableCollection<Model> SceneObjects => sceneObjects;
 
@@ -109,9 +114,7 @@ namespace SplineCAD.Data
 
 			camera = new Camera(new Vector3(0.0f, 0.0f, 5.0f));
 
-			var surface = new Surface(this, Shaders["BsplineShader"], Shaders["LineShader"]);
-
-			sceneObjects.Add(surface);
+			CreateBSplineMesh();
 		}
 
 		private void InitializeShaders()
@@ -159,6 +162,24 @@ namespace SplineCAD.Data
 			return points.CreatePoint();
 		}
 
+		private void CreateBSplineMesh()
+		{
+			var points = new IPoint[4 + 3, 4 + 3];
+
+
+
+			for (int i = 0; i < 4 + 3; i++)
+			for (int j = 0; j < 4 + 3; j++)
+			{
+
+				points[i, j] = CreatePoint();
+				points[i, j].Position = new Vector3(i, (float)Math.Sin(0.5 * i), j);
+			}
+			var bspline = new BSplineSurface(this, Shaders["BsplineShader"], Shaders["LineShader"], points);
+			SceneObjects.Add(bspline);
+
+		}
+
 		#endregion
 
 		#region ObjectManipulation
@@ -170,12 +191,7 @@ namespace SplineCAD.Data
 			selected.ForEach(x => SceneObjects.Remove(x));
 		}
 
-		private void CreateBSplineMesh()
-		{
-			var bspline = new Surface(this, Shaders["BsplineShader"], Shaders["LineShader"]);
-			SceneObjects.Add(bspline);
 
-		}
 
 		#endregion
 

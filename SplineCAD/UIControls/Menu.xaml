@@ -12,6 +12,7 @@
             <MenuItem Header="Here either" />
         </MenuItem>
         <MenuItem Header="Splines">
+            <MenuItem Header="Add B-Spline" Command="{Binding CreateBsplineCommand}" />
             <MenuItem Header="Gidda man a cookie" />
         </MenuItem>
     </Menu>
