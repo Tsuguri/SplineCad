@@ -23,6 +23,7 @@ using System.Windows.Forms;
 using System.Windows.Threading;
 using SplineCAD.Data;
 using SplineCAD.Rendering;
+using SplineCAD.Objects;
 
 namespace SplineCAD
 {
@@ -36,6 +37,7 @@ namespace SplineCAD
 		RenderingContext context;
 		private DispatcherTimer timer;
         private System.Drawing.Point mousePos;
+        private IPoint caughtPoint;
 
 		public MainWindow()
 		{
@@ -66,7 +68,9 @@ namespace SplineCAD
 			renderingSurface.MakeCurrent();
             renderingSurface.Resize += RenderingSurfaceResized;
             renderingSurface.MouseMove += RenderingSurface_MouseMove;
-			renderingSurface.Disposed += RenderingSurfaceOnDisposed;
+            renderingSurface.MouseUp += RenderingSurface_MouseUp;
+            renderingSurface.MouseDown += RenderingSurface_MouseDown;
+            renderingSurface.Disposed += RenderingSurfaceOnDisposed;
 			renderingSurface.Dock = DockStyle.Fill;
 			ImageHost.Child = renderingSurface;
 			//	throw new Exception("Application is broken, plz repair.");
@@ -76,14 +80,57 @@ namespace SplineCAD
 
 		}
 
+        private void RenderingSurface_MouseUp(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            caughtPoint = null;
+        }
+
+        private void RenderingSurface_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            if(e.Button == MouseButtons.Left && Keyboard.IsKeyDown(Key.LeftCtrl))
+            {
+                foreach(IPoint p in MainWindowDataContext.Points) //projecting points and calculating distance
+                {
+                    Vector4 v = new Vector4(p.Position, 1.0f);
+                    v = MainWindowDataContext.MainCamera.ProjectionMatrix * MainWindowDataContext.MainCamera.ViewMatrix * v;
+                    v = Vector4.Divide(v, v.W);
+                    System.Drawing.Point scenePoint = new System.Drawing.Point(
+                        (int)((v.X + 1.0f) * renderingSurface.Width / 2.0f),
+                        (int)(renderingSurface.Height - (v.Y + 1.0f) * renderingSurface.Height / 2.0f));
+                    double dx = scenePoint.X - e.X;
+                    double dy = scenePoint.Y - e.Y;
+                    if(Math.Sqrt((dx * dx + dy * dy)) < 5 /*tolerance*/)
+                    {
+                        caughtPoint = p;
+                        return;
+                    }
+
+                }
+            }
+        }
+
         private void RenderingSurface_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             System.Drawing.Point p = e.Location;
 
             if (e.Button == MouseButtons.Right)
-                MainWindowDataContext.MainCamera.Zoom(0.01f * (p.Y - mousePos.Y));
+                MainWindowDataContext.MainCamera.Zoom(0.02f * (p.Y - mousePos.Y));
             if (e.Button == MouseButtons.Left)
-                MainWindowDataContext.MainCamera.Rotate(mousePos.X - p.X, p.Y - mousePos.Y);
+            {
+                if (Keyboard.IsKeyDown(Key.LeftCtrl) && caughtPoint != null) //point movement
+                {
+                    Vector3 camPos = MainWindowDataContext.MainCamera.Position;
+                    //double dx = caughtPoint.Position.X - camPos.X;
+                    //double dy = caughtPoint.Position.Y - camPos.Y;
+                    //double dz = caughtPoint.Position.Z - camPos.Z;
+                    //float distance = (float)Math.Sqrt(dx * dx + dy * dy + dz * dz);
+                    caughtPoint.Position += 0.02f * ((mousePos.Y - p.Y) * MainWindowDataContext.MainCamera.Up +
+                                            (p.X - mousePos.X) * MainWindowDataContext.MainCamera.Right);
+                }                    
+                else
+                    MainWindowDataContext.MainCamera.Rotate(mousePos.X - p.X, p.Y - mousePos.Y);
+            }
+                
                 
             mousePos = p;
         }

@@ -69,6 +69,8 @@ namespace SplineCAD.Data
 
 		public Camera MainCamera => camera;
 
+        public PointCollection Points => points;
+
 		#endregion
 
 		private void TestButtonAction()
