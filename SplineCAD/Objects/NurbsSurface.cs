@@ -8,6 +8,7 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using SplineCAD.Data;
 using SplineCAD.Rendering;
+using SplineCAD.Utilities;
 
 namespace SplineCAD.Objects
 {
@@ -30,11 +31,30 @@ namespace SplineCAD.Objects
 
 		private bool divChanged;
 
-		private ObservableCollection<float> uDivs;
-		private ObservableCollection<float> vDivs;
+		public class FloatWrapper : BindableObject
+		{
+			private float val;
+			public float Value 
+			{
+				get => val;
+				set
+				{
+					val = value;
+					OnPropertyChanged();
+				}
+			}
 
-		public ObservableCollection<float> UDivs => uDivs;
-		public ObservableCollection<float> VDivs => vDivs;
+			internal FloatWrapper(float value)
+			{
+				Value = value;
+			}
+		}
+
+		private readonly ObservableCollection<FloatWrapper> uDivs;
+		private readonly ObservableCollection<FloatWrapper> vDivs;
+
+		public ObservableCollection<FloatWrapper> UDivs => uDivs;
+		public ObservableCollection<FloatWrapper> VDivs => vDivs;
 
 
 		protected override void PatchDivChanged()
@@ -58,16 +78,16 @@ namespace SplineCAD.Objects
 			mesh = new Vector4RectangesPolygonMesh(points);
 			surfaceMesh = new SurfaceMesh((uint)PatchDivX, (uint)PatchDivY);
 
-			uDivs = new ObservableCollection<float>();
-			vDivs = new ObservableCollection<float>();
+			uDivs = new ObservableCollection<FloatWrapper>();
+			vDivs = new ObservableCollection<FloatWrapper>();
 
 			float uStep = 1 / (float)(pointsX - 1);
 			float vStep = 1 / (float)(pointsY - 1);
 
 			for (int i = 0; i < pointsX; i++)
-				uDivs.Add(i * uStep);
+				uDivs.Add(new FloatWrapper(i * uStep));
 			for (int i = 0; i < pointsY; i++)
-				vDivs.Add(i * vStep);
+				vDivs.Add(new FloatWrapper(i * vStep));
 
 
 		}
@@ -130,19 +150,19 @@ namespace SplineCAD.Objects
 			var tv6 = surfaceShader.GetUniformLocation("tv6");
 			var tv7 = surfaceShader.GetUniformLocation("tv7");
 
-			var vs = new List<float> { vDivs[0] * 2 - vDivs[2], vDivs[0] * 2 - vDivs[1] }.Concat(vDivs)
+			var vs = new List<float> { vDivs[0].Value * 3 - vDivs[1].Value*2, vDivs[0].Value * 2 -  vDivs[1].Value }.Concat(vDivs.Select(x=>x.Value))
 				.Concat(new List<float>
 				{
-					vDivs[vDivs.Count - 1] * 2 - vDivs[vDivs.Count - 2],
-					vDivs[vDivs.Count - 1] * 2 - vDivs[vDivs.Count - 3]
+					vDivs[vDivs.Count - 1].Value * 2 - vDivs[vDivs.Count - 2].Value,
+					vDivs[vDivs.Count - 1].Value * 3 - vDivs[vDivs.Count - 2].Value * 2
 				})
 				.ToList();
 
-			var us = new List<float> { uDivs[0] * 2 - uDivs[2], uDivs[0] * 2 - uDivs[1] }.Concat(uDivs)
+			var us = new List<float> { uDivs[0].Value * 2 - uDivs[2].Value, uDivs[0].Value * 2 - uDivs[1].Value }.Concat(uDivs.Select(x => x.Value))
 				.Concat(new List<float>
 				{
-					uDivs[uDivs.Count - 1] * 2 - uDivs[uDivs.Count - 2],
-					uDivs[uDivs.Count - 1] * 2 - uDivs[uDivs.Count - 3]
+					uDivs[uDivs.Count - 1].Value * 2 - uDivs[uDivs.Count - 2].Value,
+					uDivs[uDivs.Count - 1].Value * 2 - uDivs[uDivs.Count - 3].Value
 				})
 				.ToList();
 

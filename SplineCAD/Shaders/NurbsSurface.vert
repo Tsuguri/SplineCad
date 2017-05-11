@@ -116,8 +116,8 @@ vec4 NurbsVal(vec4 value)
 
 vec3 EvaluateBspline(float u, float v)
 {
-	vec4 uVal = EvaluateUFunctions(u*(tu4-tu3)+tu3);
-	vec4 vVal = EvaluateVFunctions(v*(tv4-tv3)+tv3);
+	vec4 vVal = EvaluateUFunctions(u*(tu4-tu3)+tu3);
+	vec4 uVal = EvaluateVFunctions(v*(tv4-tv3)+tv3);
 
 	vec4 result = vec4(0,0,0,0);
 

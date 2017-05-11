@@ -4,36 +4,98 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:SplineCAD.UIControls"
+             xmlns:models="clr-namespace:SplineCAD.Objects"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="25" />
-            <RowDefinition Height="25" />
-            <RowDefinition Height="25" />
-            <RowDefinition Height="25" />
-            <RowDefinition Height="25" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+    <ScrollViewer>
+        <StackPanel>
+            <ContentControl Content="{Binding SelectedModel}">
+                <ContentControl.Resources>
+                    <DataTemplate DataType="{x:Type models:BSplineSurface}" >
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="25" />
+                                <RowDefinition Height="25" />
+                                <RowDefinition Height="25" />
+                                <RowDefinition Height="25" />
+                                <RowDefinition Height="25" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
 
-        <TextBlock>Name</TextBlock>
-        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding  Name}" />
-        <TextBlock Grid.Row="1">Show Polygon</TextBlock>
-        <ToggleButton Grid.Row="1" Grid.Column="1" IsChecked="{Binding PolygonVisible}" />
-        <TextBlock Grid.Row="2">Fill Surface</TextBlock>
-        <ToggleButton Grid.Row="2" Grid.Column="1" IsChecked="{Binding FillSurface}" />
-        <TextBlock Grid.Row="3">PatchDiv</TextBlock>
-        <Grid Grid.Row="3" Grid.Column="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <local:NumericSlider Grid.Column="0" Value="{Binding PatchDivX}" IncrementMultiplier="1" ></local:NumericSlider>
-            <local:NumericSlider Grid.Column="1" Value="{Binding PatchDivY}" IncrementMultiplier="1" ></local:NumericSlider>
-        </Grid>
-        
-    </Grid>
+                            <TextBlock>Name</TextBlock>
+                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding  Name}" />
+                            <TextBlock Grid.Row="1">Show Polygon</TextBlock>
+                            <ToggleButton Grid.Row="1" Grid.Column="1" IsChecked="{Binding PolygonVisible}" />
+                            <TextBlock Grid.Row="2">Fill Surface</TextBlock>
+                            <ToggleButton Grid.Row="2" Grid.Column="1" IsChecked="{Binding FillSurface}" />
+                            <TextBlock Grid.Row="3">PatchDiv</TextBlock>
+                            <Grid Grid.Row="3" Grid.Column="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <local:NumericSlider Grid.Column="0" Value="{Binding PatchDivX}" IncrementMultiplier="1" ></local:NumericSlider>
+                                <local:NumericSlider Grid.Column="1" Value="{Binding PatchDivY}" IncrementMultiplier="1" ></local:NumericSlider>
+                            </Grid>
+
+                        </Grid>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type models:NurbsSurface}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="25" />
+                                <RowDefinition Height="25" />
+                                <RowDefinition Height="25" />
+                                <RowDefinition Height="25" />
+                                <RowDefinition Height="25" />
+                                <RowDefinition Height="25" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock>Name</TextBlock>
+                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding  Name}" />
+                            <TextBlock Grid.Row="1" Grid.Column="0">Show Polygon</TextBlock>
+                            <ToggleButton Grid.Row="1" Grid.Column="1" IsChecked="{Binding PolygonVisible}" />
+                            <TextBlock Grid.Row="2" Grid.Column="0">Fill Surface</TextBlock>
+                            <ToggleButton Grid.Row="2" Grid.Column="1" IsChecked="{Binding FillSurface}" />
+                            <TextBlock Grid.Row="3" Grid.Column="0">PatchDiv</TextBlock>
+                            <Grid Grid.Row="3" Grid.Column="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <local:NumericSlider Grid.Column="0" Value="{Binding PatchDivX}" IncrementMultiplier="1" ></local:NumericSlider>
+                                <local:NumericSlider Grid.Column="1" Value="{Binding PatchDivY}" IncrementMultiplier="1" ></local:NumericSlider>
+                            </Grid>
+                            <TextBlock Grid.Row="5" Grid.Column="0">UDivs</TextBlock>
+                            <ListBox Grid.Row="6" Grid.Column="0" MinHeight="100" ItemsSource="{Binding UDivs}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Value}" />
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <TextBlock Grid.Row="5" Grid.Column="1">VDivs</TextBlock>
+                            <ListBox Grid.Row="6" Grid.Column="1" MinHeight="100" ItemsSource="{Binding VDivs}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Value}" />
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Grid>
+                    </DataTemplate>
+                </ContentControl.Resources>
+            </ContentControl>
+        </StackPanel>
+    </ScrollViewer>
+
+
 </UserControl>

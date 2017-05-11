@@ -6,8 +6,14 @@
              xmlns:local="clr-namespace:SplineCAD.UIControls"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <StackPanel>
-        <local:SelectedItemDescription DataContext="{Binding SelectedModel}"></local:SelectedItemDescription>
-        <local:ObjectsList></local:ObjectsList>
-    </StackPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="250"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="250"/>
+        </Grid.RowDefinitions>
+        <local:SelectedItemDescription Grid.Row="0" />
+        <GridSplitter Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Background="DarkGray" Margin="0,2,0,2" Height="3" Grid.ColumnSpan="2" />
+        <local:ObjectsList Grid.Row="2"></local:ObjectsList>
+    </Grid>
 </UserControl>
