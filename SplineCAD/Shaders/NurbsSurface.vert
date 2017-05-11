@@ -85,29 +85,29 @@ vec3 EvaluateBspline(float u, float v)
 	vec4 uVal = EvaluateFunctions(u);
 	vec4 vVal = EvaluateFunctions(v);
 
-	vec3 result = vec3(0,0,0);
+	vec4 result = vec4(0,0,0,0);
 
-	result += b00.xyz * uVal.x * vVal.x;
-	result += b01.xyz * uVal.y * vVal.x;
-	result += b02.xyz * uVal.z * vVal.x;
-	result += b03.xyz * uVal.w * vVal.x;
+	result += NurbsVal(b00) * uVal.x * vVal.x;
+	result += NurbsVal(b01) * uVal.y * vVal.x;
+	result += NurbsVal(b02) * uVal.z * vVal.x;
+	result += NurbsVal(b03) * uVal.w * vVal.x;
 				 
-	result += b10.xyz * uVal.x * vVal.y;
-	result += b11.xyz * uVal.y * vVal.y;
-	result += b12.xyz * uVal.z * vVal.y;
-	result += b13.xyz * uVal.w * vVal.y;
-				 
-	result += b20.xyz * uVal.x * vVal.z;
-	result += b21.xyz * uVal.y * vVal.z;
-	result += b22.xyz * uVal.z * vVal.z;
-	result += b23.xyz * uVal.w * vVal.z;
-				 
-	result += b30.xyz * uVal.x * vVal.w;
-	result += b31.xyz * uVal.y * vVal.w;
-	result += b32.xyz * uVal.z * vVal.w;
-	result += b33.xyz * uVal.w * vVal.w;
+	result += NurbsVal(b10) * uVal.x * vVal.y;
+	result += NurbsVal(b11) * uVal.y * vVal.y;
+	result += NurbsVal(b12) * uVal.z * vVal.y;
+	result += NurbsVal(b13) * uVal.w * vVal.y;
+				 		  
+	result += NurbsVal(b20) * uVal.x * vVal.z;
+	result += NurbsVal(b21) * uVal.y * vVal.z;
+	result += NurbsVal(b22) * uVal.z * vVal.z;
+	result += NurbsVal(b23) * uVal.w * vVal.z;
+				 		  
+	result += NurbsVal(b30) * uVal.x * vVal.w;
+	result += NurbsVal(b31) * uVal.y * vVal.w;
+	result += NurbsVal(b32) * uVal.z * vVal.w;
+	result += NurbsVal(b33) * uVal.w * vVal.w;
 
-	return result;
+	return result.xyz/result.w;
 }
 
 void main()
