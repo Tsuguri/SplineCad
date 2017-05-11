@@ -138,24 +138,20 @@ namespace SplineCAD
 			{
 				if (Keyboard.IsKeyDown(Key.LeftCtrl) && caughtPoint != null) //point movement
 				{
-					Vector3 camPos = MainWindowDataContext.MainCamera.Position;
-					//double dx = caughtPoint.Position.X - camPos.X;
-					//double dy = caughtPoint.Position.Y - camPos.Y;
-					//double dz = caughtPoint.Position.Z - camPos.Z;
-					//float distance = (float)Math.Sqrt(dx * dx + dy * dy + dz * dz);
-					caughtPoint.Position += 0.02f * ((mousePos.Y - p.Y) * MainWindowDataContext.MainCamera.Up +
-											(p.X - mousePos.X) * MainWindowDataContext.MainCamera.Right);
-				}
+                    float x = (2 * p.X) / (float)renderingSurface.Width - 1;
+                    float y = (2 * (renderingSurface.Height - p.Y)) / (float)renderingSurface.Height - 1;
+
+                    caughtPoint.Position = MainWindowDataContext.MainCamera.
+                        CastRayThroughPlane(x, y, caughtPoint.Position);
+                }
 				else if (Keyboard.IsKeyDown(Key.LeftCtrl) && caughtPoint2 != null) //point movement
 				{
-					Vector3 camPos = MainWindowDataContext.MainCamera.Position;
-					//double dx = caughtPoint.Position.X - camPos.X;
-					//double dy = caughtPoint.Position.Y - camPos.Y;
-					//double dz = caughtPoint.Position.Z - camPos.Z;
-					//float distance = (float)Math.Sqrt(dx * dx + dy * dy + dz * dz);
-					caughtPoint2.Position += new Vector4(0.02f * ((mousePos.Y - p.Y) * MainWindowDataContext.MainCamera.Up +
-													 (p.X - mousePos.X) * MainWindowDataContext.MainCamera.Right),0);
-				}
+                    float x = (2 * p.X) / (float)renderingSurface.Width - 1;
+                    float y = (2 * (renderingSurface.Height - p.Y)) / (float)renderingSurface.Height - 1;
+
+                    caughtPoint2.Position = new Vector4(MainWindowDataContext.MainCamera.
+                        CastRayThroughPlane(x, y, caughtPoint2.Position.Xyz), 1.0f);
+                }
 				else
 					MainWindowDataContext.MainCamera.Rotate(mousePos.X - p.X, p.Y - mousePos.Y);
 			}

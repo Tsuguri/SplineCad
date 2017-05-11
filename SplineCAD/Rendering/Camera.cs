@@ -118,6 +118,25 @@ namespace SplineCAD.Rendering
         {
             projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(DegreeToRadian(fov), a, n, f);
         }
+
+        public Vector3 CastRayThroughPlane(float x, float y, Vector3 planePos)
+        {
+            Vector4 v = new Vector4(x, y, 0.0f, 1.0f);
+            Matrix4 inv = (projectionMatrix * viewMatrix).Inverted();
+            v = inv * v;
+            v = Vector4.Divide(v, v.W);
+
+            Vector3 rayOrigin = position;
+            rayOrigin = Matrix3.CreateRotationX(DegreeToRadian(pitch)) * rayOrigin;
+            rayOrigin = Matrix3.CreateRotationY(DegreeToRadian(yaw - 90)) * rayOrigin;
+            Vector3 rayDirection = (v.Xyz - rayOrigin).Normalized();
+            Vector3 planeNormal = -front;
+
+            float t = Vector3.Dot(planePos - rayOrigin, planeNormal) /
+                        Vector3.Dot(rayDirection, planeNormal);
+
+            return rayOrigin + rayDirection * t;
+        }
         #endregion
     }
 }
