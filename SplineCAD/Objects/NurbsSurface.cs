@@ -44,7 +44,7 @@ namespace SplineCAD.Objects
 			patchesY = controlPoints.GetLength(1) - 3;
 
 			mesh = new Vector4RectangesPolygonMesh(points);
-			surfaceMesh = new SurfaceMesh(10, 10);
+			surfaceMesh = new SurfaceMesh(10, 10, 3 / 7.0f, 4 / 7.0f);
 
 		}
 
@@ -60,7 +60,7 @@ namespace SplineCAD.Objects
 			{
 				divChanged = false;
 				surfaceMesh?.Dispose();
-				surfaceMesh = new SurfaceMesh((uint)PatchDivX, (uint)PatchDivY);
+				surfaceMesh = new SurfaceMesh((uint)PatchDivX, (uint)PatchDivY, 3/7.0f,4/7.0f);
 			}
 			if (PolygonVisible)
 			{
@@ -89,6 +89,22 @@ namespace SplineCAD.Objects
 			var b32 = surfaceShader.GetUniformLocation("b32");
 			var b33 = surfaceShader.GetUniformLocation("b33");
 
+
+			var t1 = surfaceShader.GetUniformLocation("t1");
+			var t2 = surfaceShader.GetUniformLocation("t2");
+			var t3 = surfaceShader.GetUniformLocation("t3");
+			var t4 = surfaceShader.GetUniformLocation("t4");
+			var t5 = surfaceShader.GetUniformLocation("t5");
+			var t6 = surfaceShader.GetUniformLocation("t6");
+			var t7 = surfaceShader.GetUniformLocation("t7");
+
+			surfaceShader.Bind(t1, 1 / 7.0f);
+			surfaceShader.Bind(t2, 2 / 7.0f);
+			surfaceShader.Bind(t3, 3 / 7.0f);
+			surfaceShader.Bind(t4, 4 / 7.0f);
+			surfaceShader.Bind(t5, 5 / 7.0f);
+			surfaceShader.Bind(t6, 6 / 7.0f);
+			surfaceShader.Bind(t7, 7 / 7.0f);
 
 
 			//draw every patch

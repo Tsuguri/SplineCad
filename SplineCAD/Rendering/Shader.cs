@@ -176,6 +176,11 @@ namespace SplineCAD.Rendering
 			GL.Uniform3(location, vector);
 		}
 
+		public void Bind(int location, float value)
+		{
+			GL.Uniform1(location,value);
+		}
+
 		public void Bind(int location, Vector4 vector)
 		{
 			GL.Uniform4(location,vector);

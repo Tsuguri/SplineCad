@@ -138,7 +138,7 @@ namespace SplineCAD.Objects
 				shader.Bind(positionLoc, point.Position);
 				mesh.Render();
 			}
-			shader.Bind(positionLoc, new Vector4(0, 0, 0, 0));
+			shader.Bind(positionLoc, new Vector4(0, 0, 0, 1));
 
 
 		}

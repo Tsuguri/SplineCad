@@ -122,7 +122,7 @@ namespace SplineCAD.Data
 
 			camera = new Camera(new Vector3(0.0f, 0.0f, 5.0f));
 
-			CreateBSplineMesh();
+			CreateNurbsMesh();
 		}
 
 		private void InitializeShaders()
