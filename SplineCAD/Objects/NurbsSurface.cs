@@ -10,13 +10,13 @@ using SplineCAD.Rendering;
 
 namespace SplineCAD.Objects
 {
-	public class BSplineSurface : Surface
+	public class NurbsSurface : Surface
 	{
-		private IPoint<Vector3>[,] points;
+		private IPoint<Vector4>[,] points;
 
 		private MainDataContext sceneData;
 
-		private readonly Vector3RectangesPolygonMesh mesh;
+		private readonly Vector4RectangesPolygonMesh mesh;
 		private SurfaceMesh surfaceMesh;
 
 		private int patchesX;
@@ -34,7 +34,7 @@ namespace SplineCAD.Objects
 			divChanged = true;
 		}
 
-		public BSplineSurface(MainDataContext data, Shader surfaceShader, Shader polygonShader, IPoint<Vector3>[,] controlPoints)
+		public NurbsSurface(MainDataContext data, Shader surfaceShader, Shader polygonShader, IPoint<Vector4>[,] controlPoints)
 		{
 			this.sceneData = data;
 			this.surfaceShader = surfaceShader;
@@ -43,7 +43,7 @@ namespace SplineCAD.Objects
 			patchesX = controlPoints.GetLength(0) - 3;
 			patchesY = controlPoints.GetLength(1) - 3;
 
-			mesh = new Vector3RectangesPolygonMesh(points);
+			mesh = new Vector4RectangesPolygonMesh(points);
 			surfaceMesh = new SurfaceMesh(10, 10);
 
 		}
@@ -60,7 +60,7 @@ namespace SplineCAD.Objects
 			{
 				divChanged = false;
 				surfaceMesh?.Dispose();
-				surfaceMesh = new SurfaceMesh((uint)PatchDivX,(uint)PatchDivY);
+				surfaceMesh = new SurfaceMesh((uint)PatchDivX, (uint)PatchDivY);
 			}
 			if (PolygonVisible)
 			{

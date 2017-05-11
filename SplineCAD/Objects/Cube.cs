@@ -10,7 +10,7 @@ using SplineCAD.Rendering;
 
 namespace SplineCAD.Objects
 {
-	class Cube : Mesh
+	class Cube : Mesh<PositionVertex>
 	{
 
 		private int indicesCount;

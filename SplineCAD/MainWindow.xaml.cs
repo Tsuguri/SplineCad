@@ -37,7 +37,7 @@ namespace SplineCAD
 		RenderingContext context;
 		private DispatcherTimer timer;
         private System.Drawing.Point mousePos;
-        private IPoint caughtPoint;
+        private IPoint<Vector3> caughtPoint;
 
 		public MainWindow()
 		{
@@ -89,7 +89,7 @@ namespace SplineCAD
         {
             if(e.Button == MouseButtons.Left && Keyboard.IsKeyDown(Key.LeftCtrl))
             {
-                foreach(IPoint p in MainWindowDataContext.Points) //projecting points and calculating distance
+                foreach(var p in MainWindowDataContext.Vector3Points) //projecting vector3Points and calculating distance
                 {
                     Vector4 v = new Vector4(p.Position, 1.0f);
                     v = MainWindowDataContext.MainCamera.ProjectionMatrix * MainWindowDataContext.MainCamera.ViewMatrix * v;

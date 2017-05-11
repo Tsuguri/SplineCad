@@ -7,7 +7,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SplineCAD.Rendering
 {
-	public class SurfaceMesh : Mesh
+	public class SurfaceMesh : Mesh<PositionVertex>
 	{
 
 		public SurfaceMesh(uint xDiv, uint yDiv)

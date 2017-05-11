@@ -176,6 +176,11 @@ namespace SplineCAD.Rendering
 			GL.Uniform3(location, vector);
 		}
 
+		public void Bind(int location, Vector4 vector)
+		{
+			GL.Uniform4(location,vector);
+		}
+
 		public void Bind(int location, Matrix4 matrix)
 		{
 			GL.UniformMatrix4(location, false, ref matrix);

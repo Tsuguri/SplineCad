@@ -8,11 +8,11 @@ using SplineCAD.Data;
 
 namespace SplineCAD.Objects
 {
-	public delegate void ChangedHandler(IPoint point);
-	public interface IPoint
+	public delegate void ChangedHandler<T>(IPoint<T> point);
+	public interface IPoint<T>
 	{
-		Vector3 Position { get; set; }
-		event ChangedHandler OnChanged;
+		T Position { get; set; }
+		event ChangedHandler<T> OnChanged;
 	}
 
 }

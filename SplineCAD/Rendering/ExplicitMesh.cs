@@ -7,9 +7,9 @@ using OpenTK.Graphics.OpenGL;
 
 namespace SplineCAD.Rendering
 {
-	public class ExplicitMesh : Mesh
+	public class ExplicitMesh<TVertType> : Mesh<TVertType> where TVertType : struct, IVertex
 	{
-		public ExplicitMesh(PositionVertex[] vertices, uint[] indices, BeginMode mode = BeginMode.Triangles)
+		public ExplicitMesh(TVertType[] vertices, uint[] indices, BeginMode mode = BeginMode.Triangles)
 		{
 			Initialize(vertices,indices,mode);
 		}

@@ -10,7 +10,7 @@ using OpenTK.Graphics.OpenGL;
 namespace SplineCAD.Rendering
 {
 	[StructLayout(LayoutKind.Sequential)]
-	public struct PositionVertex
+	public struct PositionVertex : IVertex
 	{
 		public Vector3 Position;
 
@@ -24,7 +24,7 @@ namespace SplineCAD.Rendering
 			Position=new Vector3(x,y,z);
 		}
 
-		public void SetGLAttributes()
+		public void SetGlAttributes()
 		{
 			GL.EnableVertexAttribArray(0);
 			GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, SizeInBytes, PositionOffsetInBytes);

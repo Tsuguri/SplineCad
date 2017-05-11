@@ -84,13 +84,16 @@
     <Compile Include="Data\MainDataContext.cs" />
     <Compile Include="Objects\Cube.cs" />
     <Compile Include="Objects\IPoint.cs" />
-    <Compile Include="Objects\PointCollection.cs" />
+    <Compile Include="Objects\NurbsSurface.cs" />
+    <Compile Include="Objects\Vector3PointCollection.cs" />
     <Compile Include="Objects\BSplineSurface.cs" />
     <Compile Include="Objects\Surface.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Rendering\Camera.cs" />
     <Compile Include="Rendering\ExplicitMesh.cs" />
+    <Compile Include="Rendering\IVertex.cs" />
     <Compile Include="Rendering\Mesh.cs" />
+    <Compile Include="Rendering\RationalVertex.cs" />
     <Compile Include="Rendering\RectangesPolygonMesh.cs" />
     <Compile Include="Rendering\Model.cs" />
     <Compile Include="Rendering\RenderingContext.cs" />
@@ -174,6 +177,8 @@
     </None>
     <None Include="Shaders\BsplineSurface.vert" />
     <None Include="Shaders\BsplineSurface.frag" />
+    <None Include="Shaders\RationalLineShader.frag" />
+    <None Include="Shaders\RationalLineShader.vert" />
     <None Include="Shaders\LineShader.frag" />
     <None Include="Shaders\LineShader.vert" />
     <None Include="Shaders\pointShader.frag" />
