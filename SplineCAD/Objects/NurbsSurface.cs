@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,13 +20,21 @@ namespace SplineCAD.Objects
 		private readonly Vector4RectangesPolygonMesh mesh;
 		private SurfaceMesh surfaceMesh;
 
-		private int patchesX;
-		private int patchesY;
+		private readonly int patchesX;
+		private readonly int patchesY;
+		private readonly int pointsX;
+		private readonly int pointsY;
 
 		private readonly Shader surfaceShader;
 		private readonly Shader polygonShader;
 
-		private bool divChanged = false;
+		private bool divChanged;
+
+		private ObservableCollection<float> uDivs;
+		private ObservableCollection<float> vDivs;
+
+		public ObservableCollection<float> UDivs => uDivs;
+		public ObservableCollection<float> VDivs => vDivs;
 
 
 		protected override void PatchDivChanged()
@@ -40,11 +49,26 @@ namespace SplineCAD.Objects
 			this.surfaceShader = surfaceShader;
 			this.polygonShader = polygonShader;
 			this.points = controlPoints;
+
 			patchesX = controlPoints.GetLength(0) - 3;
 			patchesY = controlPoints.GetLength(1) - 3;
+			pointsX = patchesX + 3;
+			pointsY = patchesY + 3;
 
 			mesh = new Vector4RectangesPolygonMesh(points);
-			surfaceMesh = new SurfaceMesh(10, 10, 3 / 7.0f, 4 / 7.0f);
+			surfaceMesh = new SurfaceMesh((uint)PatchDivX, (uint)PatchDivY);
+
+			uDivs = new ObservableCollection<float>();
+			vDivs = new ObservableCollection<float>();
+
+			float uStep = 1 / (float)(pointsX - 1);
+			float vStep = 1 / (float)(pointsY - 1);
+
+			for (int i = 0; i < pointsX; i++)
+				uDivs.Add(i * uStep);
+			for (int i = 0; i < pointsY; i++)
+				vDivs.Add(i * vStep);
+
 
 		}
 
@@ -60,7 +84,7 @@ namespace SplineCAD.Objects
 			{
 				divChanged = false;
 				surfaceMesh?.Dispose();
-				surfaceMesh = new SurfaceMesh((uint)PatchDivX, (uint)PatchDivY, 3/7.0f,4/7.0f);
+				surfaceMesh = new SurfaceMesh((uint)PatchDivX, (uint)PatchDivY);
 			}
 			if (PolygonVisible)
 			{
@@ -90,28 +114,59 @@ namespace SplineCAD.Objects
 			var b33 = surfaceShader.GetUniformLocation("b33");
 
 
-			var t1 = surfaceShader.GetUniformLocation("t1");
-			var t2 = surfaceShader.GetUniformLocation("t2");
-			var t3 = surfaceShader.GetUniformLocation("t3");
-			var t4 = surfaceShader.GetUniformLocation("t4");
-			var t5 = surfaceShader.GetUniformLocation("t5");
-			var t6 = surfaceShader.GetUniformLocation("t6");
-			var t7 = surfaceShader.GetUniformLocation("t7");
+			var tu1 = surfaceShader.GetUniformLocation("tu1");
+			var tu2 = surfaceShader.GetUniformLocation("tu2");
+			var tu3 = surfaceShader.GetUniformLocation("tu3");
+			var tu4 = surfaceShader.GetUniformLocation("tu4");
+			var tu5 = surfaceShader.GetUniformLocation("tu5");
+			var tu6 = surfaceShader.GetUniformLocation("tu6");
+			var tu7 = surfaceShader.GetUniformLocation("tu7");
 
-			surfaceShader.Bind(t1, 1 / 7.0f);
-			surfaceShader.Bind(t2, 2 / 7.0f);
-			surfaceShader.Bind(t3, 3 / 7.0f);
-			surfaceShader.Bind(t4, 4 / 7.0f);
-			surfaceShader.Bind(t5, 5 / 7.0f);
-			surfaceShader.Bind(t6, 6 / 7.0f);
-			surfaceShader.Bind(t7, 7 / 7.0f);
+			var tv1 = surfaceShader.GetUniformLocation("tv1");
+			var tv2 = surfaceShader.GetUniformLocation("tv2");
+			var tv3 = surfaceShader.GetUniformLocation("tv3");
+			var tv4 = surfaceShader.GetUniformLocation("tv4");
+			var tv5 = surfaceShader.GetUniformLocation("tv5");
+			var tv6 = surfaceShader.GetUniformLocation("tv6");
+			var tv7 = surfaceShader.GetUniformLocation("tv7");
 
+			var vs = new List<float> { vDivs[0] * 2 - vDivs[2], vDivs[0] * 2 - vDivs[1] }.Concat(vDivs)
+				.Concat(new List<float>
+				{
+					vDivs[vDivs.Count - 1] * 2 - vDivs[vDivs.Count - 2],
+					vDivs[vDivs.Count - 1] * 2 - vDivs[vDivs.Count - 3]
+				})
+				.ToList();
+
+			var us = new List<float> { uDivs[0] * 2 - uDivs[2], uDivs[0] * 2 - uDivs[1] }.Concat(uDivs)
+				.Concat(new List<float>
+				{
+					uDivs[uDivs.Count - 1] * 2 - uDivs[uDivs.Count - 2],
+					uDivs[uDivs.Count - 1] * 2 - uDivs[uDivs.Count - 3]
+				})
+				.ToList();
 
 			//draw every patch
 			for (int i = 0; i < patchesX; i++)
 			{
+				surfaceShader.Bind(tu1, us[i + 1] - us[i]);
+				surfaceShader.Bind(tu2, us[i + 2] - us[i]);
+				surfaceShader.Bind(tu3, us[i + 3] - us[i]);
+				surfaceShader.Bind(tu4, us[i + 4] - us[i]);
+				surfaceShader.Bind(tu5, us[i + 5] - us[i]);
+				surfaceShader.Bind(tu6, us[i + 6] - us[i]);
+				surfaceShader.Bind(tu7, us[i + 7] - us[i]);
+
 				for (int j = 0; j < patchesY; j++)
 				{
+					surfaceShader.Bind(tv1, vs[j + 1] - vs[j]);
+					surfaceShader.Bind(tv2, vs[j + 2] - vs[j]);
+					surfaceShader.Bind(tv3, vs[j + 3] - vs[j]);
+					surfaceShader.Bind(tv4, vs[j + 4] - vs[j]);
+					surfaceShader.Bind(tv5, vs[j + 5] - vs[j]);
+					surfaceShader.Bind(tv6, vs[j + 6] - vs[j]);
+					surfaceShader.Bind(tv7, vs[j + 7] - vs[j]);
+
 					surfaceShader.Bind(b00, points[i + 0, j + 0].Position);
 					surfaceShader.Bind(b01, points[i + 0, j + 1].Position);
 					surfaceShader.Bind(b02, points[i + 0, j + 2].Position);

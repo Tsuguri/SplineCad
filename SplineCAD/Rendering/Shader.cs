@@ -171,15 +171,21 @@ namespace SplineCAD.Rendering
 			return loc;
 		}
 
+		public void Bind(int location, float value)
+		{
+			GL.Uniform1(location,value);
+		}
+
+		public void Bind(int location, Vector2 vector)
+		{
+			GL.Uniform2(location,vector);
+		}
+
 		public void Bind(int location, Vector3 vector)
 		{
 			GL.Uniform3(location, vector);
 		}
 
-		public void Bind(int location, float value)
-		{
-			GL.Uniform1(location,value);
-		}
 
 		public void Bind(int location, Vector4 vector)
 		{
