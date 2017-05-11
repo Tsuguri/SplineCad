@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenTK;
+using System.Windows.Input;
 
 namespace SplineCAD.Rendering
 {
@@ -136,6 +137,23 @@ namespace SplineCAD.Rendering
                         Vector3.Dot(rayDirection, planeNormal);
 
             return rayOrigin + rayDirection * t;
+        }
+
+        public void HandleKeyboardMovement(float speed)
+        {
+            if (Keyboard.IsKeyDown(Key.W))
+                position.Y += speed;
+            if (Keyboard.IsKeyDown(Key.A))
+                position.X -= speed;
+            if (Keyboard.IsKeyDown(Key.S))
+                position.Y -= speed;
+            if (Keyboard.IsKeyDown(Key.D))
+                position.X += speed;
+
+            viewMatrix = new Matrix4(new Vector4(right, -position.X),
+                                    new Vector4(up, -position.Y),
+                                    new Vector4(front, -position.Z),
+                                    new Vector4(0.0f, 0.0f, 0.0f, 1.0f));
         }
         #endregion
     }

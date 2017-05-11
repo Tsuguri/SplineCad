@@ -237,6 +237,8 @@ namespace SplineCAD.Data
 				GL.Clear(ClearBufferMask.ColorBufferBit);
 			}
 
+            MainCamera.HandleKeyboardMovement(0.1f);
+
 			var shader = Shaders["testShader"];
 			var mesh = Meshes["cubeMesh"];
 			var ptShader = Shaders["pointShader"];
