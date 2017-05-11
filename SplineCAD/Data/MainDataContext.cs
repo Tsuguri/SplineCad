@@ -75,6 +75,7 @@ namespace SplineCAD.Data
 		public Camera MainCamera => camera;
 
         public Vector3PointCollection Vector3Points => vector3Points;
+        public Vector4PointCollection Vector4Points => vector4Points;
 
 		#endregion
 
@@ -134,7 +135,8 @@ namespace SplineCAD.Data
 				{"pointShader", Shader.CreateShader("Shaders\\pointShader.vert","Shaders\\pointShader.frag") },
 				{"LineShader", Shader.CreateShader("Shaders\\LineShader.vert","Shaders\\LineShader.frag") },
 				{"RationalLineShader", Shader.CreateShader("Shaders\\RationalLineShader.vert","Shaders\\RationalLineShader.frag") },
-				{"BsplineShader",Shader.CreateShader("Shaders\\BsplineSurface.vert","Shaders\\BsplineSurface.frag") }
+				{"BsplineShader",Shader.CreateShader("Shaders\\BsplineSurface.vert","Shaders\\BsplineSurface.frag") },
+				{"NurbsShader",Shader.CreateShader("Shaders\\NurbsSurface.vert","Shaders\\NurbsSurface.frag") }
 			};
 
 			void StandardShaderDelegate(Shader shader)
@@ -149,6 +151,7 @@ namespace SplineCAD.Data
 			Shaders["LineShader"].OnActivateMethod += StandardShaderDelegate;
 			Shaders["RationalLineShader"].OnActivateMethod += StandardShaderDelegate;
 			Shaders["BsplineShader"].OnActivateMethod += StandardShaderDelegate;
+			Shaders["NurbsShader"].OnActivateMethod += StandardShaderDelegate;
 
 
 		}
@@ -205,7 +208,7 @@ namespace SplineCAD.Data
 				points[i, j] = CreateRationalPoint();
 				points[i, j].Position = new Vector4(i, (float)Math.Sin(0.5 * i), j,1);
 			}
-			var bspline = new NurbsSurface(this, Shaders["BsplineShader"], Shaders["RationalLineShader"], points);
+			var bspline = new NurbsSurface(this, Shaders["NurbsShader"], Shaders["RationalLineShader"], points);
 			SceneObjects.Add(bspline);
 		}
 
@@ -237,7 +240,6 @@ namespace SplineCAD.Data
 			var shader = Shaders["testShader"];
 			var mesh = Meshes["cubeMesh"];
 			var ptShader = Shaders["pointShader"];
-			var lineShader = Shaders["LineShader"];
 			shader.Activate();
 			mesh.Render();
 

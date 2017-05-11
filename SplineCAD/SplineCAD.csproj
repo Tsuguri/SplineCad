@@ -175,6 +175,8 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Shaders\NurbsSurface.frag" />
+    <None Include="Shaders\NurbsSurface.vert" />
     <None Include="Shaders\BsplineSurface.vert" />
     <None Include="Shaders\BsplineSurface.frag" />
     <None Include="Shaders\RationalLineShader.frag" />

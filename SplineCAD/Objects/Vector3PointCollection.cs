@@ -103,6 +103,7 @@ namespace SplineCAD.Objects
 				shader.Bind(positionLoc,point.Position);
 				mesh.Render();
 			}
+			shader.Bind(positionLoc,new Vector3(0,0,0));
 
 		}
     }
@@ -134,9 +135,11 @@ namespace SplineCAD.Objects
 
 			foreach (var point in points)
 			{
-				shader.Bind(positionLoc, new Vector3(point.Position));
+				shader.Bind(positionLoc, point.Position);
 				mesh.Render();
 			}
+			shader.Bind(positionLoc, new Vector4(0, 0, 0, 0));
+
 
 		}
 	}
