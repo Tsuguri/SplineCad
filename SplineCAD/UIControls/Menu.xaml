@@ -14,6 +14,7 @@
         <MenuItem Header="Splines">
             <MenuItem Header="Add B-Spline" Command="{Binding CreateBsplineCommand}" />
             <MenuItem Header="Add NURBS" Command="{Binding CreateNurbsCommand}" />
+            <MenuItem Header="Add T-Spline" Command="{Binding CreateTsplineCommand}" />
             <MenuItem Header="Gidda man a cookie" />
         </MenuItem>
     </Menu>

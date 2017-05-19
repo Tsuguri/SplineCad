@@ -25,6 +25,7 @@ namespace SplineCAD.Data
 		private ICommand removeSelectedCommand;
 		private ICommand createBsplineCommand;
 		private ICommand createNurbsCommand;
+		private ICommand createTsplineCommand;
 
 		private bool changed;
 
@@ -59,6 +60,9 @@ namespace SplineCAD.Data
 
 		public ICommand CreateNurbsCommand => createNurbsCommand ??
 		                                        (createNurbsCommand = new CommandHandler(CreateNurbsMesh));
+
+		public ICommand CreateTsplineCommand => createTsplineCommand ??
+		                                        (createTsplineCommand = new CommandHandler(CreateTsplineMesh));
 
 		public ObservableCollection<Model> SceneObjects => sceneObjects;
 
@@ -122,7 +126,7 @@ namespace SplineCAD.Data
 
 			camera = new Camera(new Vector3(0.0f, 0.0f, 5.0f));
 
-			CreateNurbsMesh();
+			CreateTsplineMesh();
 		}
 
 		private void InitializeShaders()
@@ -136,7 +140,8 @@ namespace SplineCAD.Data
 				{"LineShader", Shader.CreateShader("Shaders\\LineShader.vert","Shaders\\LineShader.frag") },
 				{"RationalLineShader", Shader.CreateShader("Shaders\\RationalLineShader.vert","Shaders\\RationalLineShader.frag") },
 				{"BsplineShader",Shader.CreateShader("Shaders\\BsplineSurface.vert","Shaders\\BsplineSurface.frag") },
-				{"NurbsShader",Shader.CreateShader("Shaders\\NurbsSurface.vert","Shaders\\NurbsSurface.frag") }
+				{"NurbsShader",Shader.CreateShader("Shaders\\NurbsSurface.vert","Shaders\\NurbsSurface.frag") },
+				{"TsplineShader", Shader.CreateShader("Shaders\\TsplineSurface.vert","Shaders\\TsplineSurface.frag")}
 			};
 
 			void StandardShaderDelegate(Shader shader)
@@ -152,6 +157,7 @@ namespace SplineCAD.Data
 			Shaders["RationalLineShader"].OnActivateMethod += StandardShaderDelegate;
 			Shaders["BsplineShader"].OnActivateMethod += StandardShaderDelegate;
 			Shaders["NurbsShader"].OnActivateMethod += StandardShaderDelegate;
+			Shaders["TsplineShader"].OnActivateMethod += StandardShaderDelegate;
 
 
 		}
@@ -209,6 +215,20 @@ namespace SplineCAD.Data
 				points[i, j].Position = new Vector4(i, (float)Math.Sin(0.5 * i), j,1);
 			}
 			var bspline = new NurbsSurface(this, Shaders["NurbsShader"], Shaders["RationalLineShader"], points);
+			SceneObjects.Add(bspline);
+		}
+
+		private void CreateTsplineMesh()
+		{
+			var points = new IPoint<Vector4>[4 + 3, 4 + 3];
+			for (int i = 0; i < 4 + 3; i++)
+			for (int j = 0; j < 4 + 3; j++)
+			{
+
+				points[i, j] = CreateRationalPoint();
+				points[i, j].Position = new Vector4(i, (float)Math.Sin(0.5 * i), j, 1);
+			}
+			var bspline = new TsplineSurface(this, Shaders["TsplineShader"], Shaders["RationalLineShader"], points);
 			SceneObjects.Add(bspline);
 		}
 

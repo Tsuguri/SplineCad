@@ -85,6 +85,7 @@
     <Compile Include="Objects\Cube.cs" />
     <Compile Include="Objects\IPoint.cs" />
     <Compile Include="Objects\NurbsSurface.cs" />
+    <Compile Include="Objects\TSplineSurface.cs" />
     <Compile Include="Objects\Vector3PointCollection.cs" />
     <Compile Include="Objects\BSplineSurface.cs" />
     <Compile Include="Objects\Surface.cs" />
@@ -175,6 +176,8 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="Shaders\TsplineSurface.vert" />
+    <None Include="Shaders\TsplineSurface.frag" />
     <None Include="Shaders\NurbsSurface.frag" />
     <None Include="Shaders\NurbsSurface.vert" />
     <None Include="Shaders\BsplineSurface.vert" />
