@@ -14,7 +14,89 @@ namespace SplineCAD.Objects
 {
 	class TsplineSurface : Surface
 	{
+		private class UComparer : IComparer<PointWrapper>
+		{
+			public int Compare(PointWrapper x, PointWrapper y)
+			{
+				return x.U.CompareTo(y.U);
+			}
+		}
+
+		private class VComparer : IComparer<PointWrapper>
+		{
+			public int Compare(PointWrapper x, PointWrapper y)
+			{
+				return x.V.CompareTo(y.V);
+			}
+		}
+
+		private class PointWrapper
+		{
+			private readonly IPoint<Vector4> point;
+			private readonly float u;
+			private readonly float v;
+			private readonly Line uLine;
+			private readonly Line vLine;
+			private TsplineSurface surface;
+			public Vector4 Position => point.Position;
+
+			public Vector4 UDistances { get; private set; }
+			public Vector4 VDistances { get; private set; }
+
+
+			public float U => u;
+			public float V => v;
+
+			public PointWrapper(IPoint<Vector4> point, float u, float v, Line uLine, Line vLine, TsplineSurface surface)
+			{
+				this.u = u;
+				this.v = v;
+				this.uLine = uLine;
+				this.vLine = vLine;
+				this.point = point;
+				this.surface = surface;
+			}
+
+			public void RecalculateKnots()
+			{
+				UDistances = surface.GetPointKnots(this, true);
+				VDistances = surface.GetPointKnots(this, false);
+			}
+
+		}
+
+		private class Line
+		{
+			private readonly SortedSet<PointWrapper> points;
+
+			public float From { get; }
+
+			public float To { get; }
+
+			public float Value { get; }
+
+			public Line(float value, float from, float to, IComparer<PointWrapper> comparer)
+			{
+				this.points = new SortedSet<PointWrapper>(comparer);
+				this.From = from;
+				this.To = to;
+				this.Value = value;
+			}
+
+			public void AddPoint(PointWrapper point)
+			{
+				points.Add(point);
+			}
+
+		}
+
+
+
 		private IPoint<Vector4>[,] points;
+
+		private List<PointWrapper> tsplinePoints;
+		private List<Line> uLines;
+		private List<Line> vLines;
 
 		private MainDataContext sceneData;
 
@@ -23,8 +105,6 @@ namespace SplineCAD.Objects
 
 		private readonly int patchesX;
 		private readonly int patchesY;
-		private readonly int pointsX;
-		private readonly int pointsY;
 
 		private readonly Shader surfaceShader;
 		private readonly Shader polygonShader;
@@ -50,12 +130,40 @@ namespace SplineCAD.Objects
 			}
 		}
 
-		private readonly ObservableCollection<FloatWrapper> uDivs;
-		private readonly ObservableCollection<FloatWrapper> vDivs;
+		private Vector4 GetPointKnots(PointWrapper point, bool uKnots)
+		{
+			var l = uKnots ? uLines : vLines;
+			var pos = uKnots ? point.U : point.V;
+			var second = uKnots ? point.V : point.U;
+			Vector4 vec = new Vector4(0);
 
-		public ObservableCollection<FloatWrapper> UDivs => uDivs;
-		public ObservableCollection<FloatWrapper> VDivs => vDivs;
+			var p = l.FirstOrDefault(x => Math.Abs(x.Value - pos) < float.Epsilon);
+			if (p == null)
+				throw new Exception("Bad u value");
+			var pIndex = l.IndexOf(p);
+			var tmp = pIndex;
+			do
+			{
+				tmp--;
 
+			} while (tmp >= 0 && (l[tmp].From > second || l[tmp].To < second));
+			vec.Y = tmp < 0 ? -0.001f : l[tmp].Value;
+			tmp--;
+			while (tmp >= 0 && (l[tmp].From > second || l[tmp].To < second))
+				tmp--;
+			vec.X = tmp < 0 ? -0.001f * Math.Abs(tmp) : l[tmp].Value;
+
+			tmp = pIndex + 1;
+			while (tmp < l.Count && (l[tmp].From > second || l[tmp].To < second))
+				tmp++;
+			vec.Z = tmp >= l.Count ? 1.001f : l[tmp].Value;
+			tmp++;
+			while (tmp < l.Count && (l[tmp].From > second || l[tmp].To < second))
+				tmp++;
+			vec.W = tmp >= l.Count ? 1.0f + 0.001f * Math.Abs(tmp-l.Count+1) : l[tmp].Value;
+
+			return vec;
+		}
 
 		protected override void PatchDivChanged()
 		{
@@ -70,26 +178,54 @@ namespace SplineCAD.Objects
 			this.polygonShader = polygonShader;
 			this.points = controlPoints;
 
-			patchesX = controlPoints.GetLength(0) - 3;
-			patchesY = controlPoints.GetLength(1) - 3;
-			pointsX = patchesX + 3;
-			pointsY = patchesY + 3;
+			var ptsX = controlPoints.GetLength(0);
+			var ptsY = controlPoints.GetLength(1);
+
+			var uDiv = 1.0 / (ptsX - 1);
+			var vDiv = 1.0 / (ptsY - 1);
+			uLines = new List<Line>(ptsX);
+			vLines = new List<Line>(ptsY);
+			tsplinePoints = new List<PointWrapper>(ptsX * ptsY);
+
+			for (int i = 0; i < ptsX; i++)
+			{
+				uLines.Add(new Line((float)(i * uDiv), 0, 1, new UComparer()));
+			}
+			for (int i = 0; i < ptsY; i++)
+			{
+				vLines.Add(new Line((float)(i * vDiv), 0, 1, new VComparer()));
+			}
+
+			for (int i = 0; i < ptsX; i++)
+				for (int j = 0; j < ptsY; j++)
+				{
+					var uline = uLines[i];
+					var vline = vLines[j];
+					var pt = new PointWrapper(controlPoints[i, j], (float)(i * uDiv), (float)(j * vDiv), uline, vline, this);
+					uline.AddPoint(pt);
+					vline.AddPoint(pt);
+					tsplinePoints.Add(pt);
+				}
+			RecalculateKnots();
 
 			mesh = new Vector4RectangesPolygonMesh(points);
 			surfaceMesh = new SurfaceMesh((uint)PatchDivX, (uint)PatchDivY);
+		}
 
-			uDivs = new ObservableCollection<FloatWrapper>();
-			vDivs = new ObservableCollection<FloatWrapper>();
+		public void InsertPoint(float u, float v)
+		{
+			
+		}
 
-			float uStep = 1 / (float)(pointsX - 1);
-			float vStep = 1 / (float)(pointsY - 1);
+		private void RecalculateKnots()
+		{
+			uLines.Sort((x, y) => x.Value.CompareTo(y.Value));
+			vLines.Sort((x, y) => x.Value.CompareTo(y.Value));
 
-			for (int i = 0; i < pointsX; i++)
-				uDivs.Add(new FloatWrapper(i * uStep));
-			for (int i = 0; i < pointsY; i++)
-				vDivs.Add(new FloatWrapper(i * vStep));
-
-
+			foreach (var tsplinePoint in tsplinePoints)
+			{
+				tsplinePoint.RecalculateKnots();
+			}
 		}
 
 		public override void CleanUp()
@@ -116,167 +252,38 @@ namespace SplineCAD.Objects
 
 			surfaceShader.Activate();
 
-			int u = points.GetLength(0);
-			int v = points.GetLength(1);
-			float du = 1 / (float)(u-1);
-			float dv = 1 / (float)(v-1);
-
-			try
+			for (var i = 0; i < tsplinePoints.Count; i++)
 			{
+				var tsplinePoint = tsplinePoints[i];
+				var loc = $"functions[{i}].";
+				var controlPoint = surfaceShader.GetUniformLocation(loc + "controlPoint");
+				var uStart = surfaceShader.GetUniformLocation(loc + "uStart");
+				var uDistances = surfaceShader.GetUniformLocation(loc + "uDistances");
+				var vStart = surfaceShader.GetUniformLocation(loc + "vStart");
+				var vDistances = surfaceShader.GetUniformLocation(loc + "vDistances");
 
-				for (int i = 0; i < u; i++)
-				for (int j = 0; j < v; j++)
-				{
-					var loc = $"functions[{i * v + j}].";
-					var controlPoint = surfaceShader.GetUniformLocation(loc + "controlPoint");
-					var uStart = surfaceShader.GetUniformLocation(loc + "uStart");
-					var uDistances = surfaceShader.GetUniformLocation(loc + "uDistances");
-					var vStart = surfaceShader.GetUniformLocation(loc + "vStart");
-					var vDistances = surfaceShader.GetUniformLocation(loc + "vDistances");
+				var vDistancesVal = tsplinePoint.VDistances;
+				var vStartVal = vDistancesVal.X;
+				vDistancesVal.X = vDistancesVal.Y;
+				vDistancesVal.Y = tsplinePoint.V;
 
-					float pu1, pu2, pu3, pu4, pu5, pv1, pv2, pv3, pv4, pv5;
+				var uDistancesVal = tsplinePoint.UDistances;
+				var uStartVal = uDistancesVal.X;
+				uDistancesVal.X = uDistancesVal.Y;
+				uDistancesVal.Y = tsplinePoint.U;
 
-					pu1 = (i - 2) * du;
-					pu2 = (i - 1) * du;
-					pu3 = i * du;
-					pu4 = (i + 1) * du;
-					pu5 = (i + 2) * du;
-
-					pv1 = (j - 2) * dv;
-					pv2 = (j - 1) * dv;
-					pv3 = j * dv;
-					pv4 = (j + 1) * dv;
-					pv5 = (j + 2) * dv;
-
-					surfaceShader.Bind(uStart, pu1);
-					surfaceShader.Bind(vStart, pv1);
-					surfaceShader.Bind(uDistances, new Vector4(pu2, pu3, pu4, pu5));
-					surfaceShader.Bind(vDistances, new Vector4(pv2, pv3, pv4, pv5));
-					surfaceShader.Bind(controlPoint, points[i, j].Position);
-
-				}
-
-				var ptsCount = surfaceShader.GetUniformLocation("usedPoints");
-				surfaceShader.Bind(ptsCount, u * v);
-
-				var size = surfaceShader.GetUniformLocation("size");
-				surfaceShader.Bind(size, new Vector2(1, 1));
+				surfaceShader.Bind(uStart, uStartVal);
+				surfaceShader.Bind(vStart, vStartVal);
+				surfaceShader.Bind(uDistances, uDistancesVal);
+				surfaceShader.Bind(vDistances, vDistancesVal);
+				surfaceShader.Bind(controlPoint, tsplinePoint.Position);
 			}
-			catch (Exception e)
-			{
-				// ignored
-			}
+			var ptsCount = surfaceShader.GetUniformLocation("usedPoints");
+			surfaceShader.Bind(ptsCount, tsplinePoints.Count);
+
+			var size = surfaceShader.GetUniformLocation("size");
+			surfaceShader.Bind(size, new Vector2(1, 1));
 			surfaceMesh.Render();
-
-			//const int MaxPoints = 192;
-			//	struct BaseFunction
-			//{
-			//	vec4 controlPoint;
-			//	float uStart;
-			//	vec4 uDistances;
-			//	float vStart;
-			//	vec4 vDistances;
-			//};
-
-			//uniform BaseFunction functions[MaxPoints];
-
-			//uniform int usedPoints;
-			//uniform vec2 size;
-
-			//var b00 = surfaceShader.GetUniformLocation("b00");
-			//var b01 = surfaceShader.GetUniformLocation("b01");
-			//var b02 = surfaceShader.GetUniformLocation("b02");
-			//var b03 = surfaceShader.GetUniformLocation("b03");
-			//var b10 = surfaceShader.GetUniformLocation("b10");
-			//var b11 = surfaceShader.GetUniformLocation("b11");
-			//var b12 = surfaceShader.GetUniformLocation("b12");
-			//var b13 = surfaceShader.GetUniformLocation("b13");
-			//var b20 = surfaceShader.GetUniformLocation("b20");
-			//var b21 = surfaceShader.GetUniformLocation("b21");
-			//var b22 = surfaceShader.GetUniformLocation("b22");
-			//var b23 = surfaceShader.GetUniformLocation("b23");
-			//var b30 = surfaceShader.GetUniformLocation("b30");
-			//var b31 = surfaceShader.GetUniformLocation("b31");
-			//var b32 = surfaceShader.GetUniformLocation("b32");
-			//var b33 = surfaceShader.GetUniformLocation("b33");
-
-
-			//var tu1 = surfaceShader.GetUniformLocation("tu1");
-			//var tu2 = surfaceShader.GetUniformLocation("tu2");
-			//var tu3 = surfaceShader.GetUniformLocation("tu3");
-			//var tu4 = surfaceShader.GetUniformLocation("tu4");
-			//var tu5 = surfaceShader.GetUniformLocation("tu5");
-			//var tu6 = surfaceShader.GetUniformLocation("tu6");
-			//var tu7 = surfaceShader.GetUniformLocation("tu7");
-
-			//var tv1 = surfaceShader.GetUniformLocation("tv1");
-			//var tv2 = surfaceShader.GetUniformLocation("tv2");
-			//var tv3 = surfaceShader.GetUniformLocation("tv3");
-			//var tv4 = surfaceShader.GetUniformLocation("tv4");
-			//var tv5 = surfaceShader.GetUniformLocation("tv5");
-			//var tv6 = surfaceShader.GetUniformLocation("tv6");
-			//var tv7 = surfaceShader.GetUniformLocation("tv7");
-
-			//var vs = new List<float> { vDivs[0].Value * 3 - vDivs[1].Value * 2, vDivs[0].Value * 2 - vDivs[1].Value }.Concat(vDivs.Select(x => x.Value))
-			//	.Concat(new List<float>
-			//	{
-			//		vDivs[vDivs.Count - 1].Value * 2 - vDivs[vDivs.Count - 2].Value,
-			//		vDivs[vDivs.Count - 1].Value * 3 - vDivs[vDivs.Count - 2].Value * 2
-			//	})
-			//	.ToList();
-
-			//var us = new List<float> { uDivs[0].Value * 2 - uDivs[2].Value, uDivs[0].Value * 2 - uDivs[1].Value }.Concat(uDivs.Select(x => x.Value))
-			//	.Concat(new List<float>
-			//	{
-			//		uDivs[uDivs.Count - 1].Value * 2 - uDivs[uDivs.Count - 2].Value,
-			//		uDivs[uDivs.Count - 1].Value * 2 - uDivs[uDivs.Count - 3].Value
-			//	})
-			//	.ToList();
-
-			////draw every patch
-			//for (int i = 0; i < patchesX; i++)
-			//{
-			//	surfaceShader.Bind(tu1, us[i + 1] - us[i]);
-			//	surfaceShader.Bind(tu2, us[i + 2] - us[i]);
-			//	surfaceShader.Bind(tu3, us[i + 3] - us[i]);
-			//	surfaceShader.Bind(tu4, us[i + 4] - us[i]);
-			//	surfaceShader.Bind(tu5, us[i + 5] - us[i]);
-			//	surfaceShader.Bind(tu6, us[i + 6] - us[i]);
-			//	surfaceShader.Bind(tu7, us[i + 7] - us[i]);
-
-			//	for (int j = 0; j < patchesY; j++)
-			//	{
-			//		surfaceShader.Bind(tv1, vs[j + 1] - vs[j]);
-			//		surfaceShader.Bind(tv2, vs[j + 2] - vs[j]);
-			//		surfaceShader.Bind(tv3, vs[j + 3] - vs[j]);
-			//		surfaceShader.Bind(tv4, vs[j + 4] - vs[j]);
-			//		surfaceShader.Bind(tv5, vs[j + 5] - vs[j]);
-			//		surfaceShader.Bind(tv6, vs[j + 6] - vs[j]);
-			//		surfaceShader.Bind(tv7, vs[j + 7] - vs[j]);
-
-			//		surfaceShader.Bind(b00, points[i + 0, j + 0].Position);
-			//		surfaceShader.Bind(b01, points[i + 0, j + 1].Position);
-			//		surfaceShader.Bind(b02, points[i + 0, j + 2].Position);
-			//		surfaceShader.Bind(b03, points[i + 0, j + 3].Position);
-			//		surfaceShader.Bind(b10, points[i + 1, j + 0].Position);
-			//		surfaceShader.Bind(b11, points[i + 1, j + 1].Position);
-			//		surfaceShader.Bind(b12, points[i + 1, j + 2].Position);
-			//		surfaceShader.Bind(b13, points[i + 1, j + 3].Position);
-			//		surfaceShader.Bind(b20, points[i + 2, j + 0].Position);
-			//		surfaceShader.Bind(b21, points[i + 2, j + 1].Position);
-			//		surfaceShader.Bind(b22, points[i + 2, j + 2].Position);
-			//		surfaceShader.Bind(b23, points[i + 2, j + 3].Position);
-			//		surfaceShader.Bind(b30, points[i + 3, j + 0].Position);
-			//		surfaceShader.Bind(b31, points[i + 3, j + 1].Position);
-			//		surfaceShader.Bind(b32, points[i + 3, j + 2].Position);
-			//		surfaceShader.Bind(b33, points[i + 3, j + 3].Position);
-
-
-
-			//		surfaceMesh.Render();
-			//	}
-			//}
-
 		}
 	}
 }
