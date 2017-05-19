@@ -1,6 +1,24 @@
 #version 330 core
-  
+ 
 layout (location = 0) in vec3 position;
+
+
+const int MaxPoints = 192;
+struct BaseFunction
+{
+	vec4 controlPoint;
+	float uStart;
+	vec4 uDistances;
+	float vStart;
+	vec4 vDistances;
+};
+
+uniform BaseFunction functions[MaxPoints];
+
+uniform int usedPoints;
+
+
+
 
 uniform mat4 viewMatrix;
 uniform mat4 projMatrix;
@@ -147,5 +165,11 @@ vec3 EvaluateBspline(float u, float v)
 void main()
 {
 	vec3 pos = EvaluateBspline(position.x,position.y);
+
+	float p = 0.0f;
+
+	for(int i=0;i<3;i++)
+		p+=functions[i].uStart;
+
     gl_Position = vec4(pos.x, pos.y, pos.z, 1.0) * viewMatrix * projMatrix;
 }
