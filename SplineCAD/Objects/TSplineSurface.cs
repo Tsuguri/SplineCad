@@ -116,99 +116,166 @@ namespace SplineCAD.Objects
 
 			surfaceShader.Activate();
 
-			var b00 = surfaceShader.GetUniformLocation("b00");
-			var b01 = surfaceShader.GetUniformLocation("b01");
-			var b02 = surfaceShader.GetUniformLocation("b02");
-			var b03 = surfaceShader.GetUniformLocation("b03");
-			var b10 = surfaceShader.GetUniformLocation("b10");
-			var b11 = surfaceShader.GetUniformLocation("b11");
-			var b12 = surfaceShader.GetUniformLocation("b12");
-			var b13 = surfaceShader.GetUniformLocation("b13");
-			var b20 = surfaceShader.GetUniformLocation("b20");
-			var b21 = surfaceShader.GetUniformLocation("b21");
-			var b22 = surfaceShader.GetUniformLocation("b22");
-			var b23 = surfaceShader.GetUniformLocation("b23");
-			var b30 = surfaceShader.GetUniformLocation("b30");
-			var b31 = surfaceShader.GetUniformLocation("b31");
-			var b32 = surfaceShader.GetUniformLocation("b32");
-			var b33 = surfaceShader.GetUniformLocation("b33");
+			int u = points.GetLength(0);
+			int v = points.GetLength(1);
+			float du = 1 / (float)(u-1);
+			float dv = 1 / (float)(v-1);
 
-
-			var tu1 = surfaceShader.GetUniformLocation("tu1");
-			var tu2 = surfaceShader.GetUniformLocation("tu2");
-			var tu3 = surfaceShader.GetUniformLocation("tu3");
-			var tu4 = surfaceShader.GetUniformLocation("tu4");
-			var tu5 = surfaceShader.GetUniformLocation("tu5");
-			var tu6 = surfaceShader.GetUniformLocation("tu6");
-			var tu7 = surfaceShader.GetUniformLocation("tu7");
-
-			var tv1 = surfaceShader.GetUniformLocation("tv1");
-			var tv2 = surfaceShader.GetUniformLocation("tv2");
-			var tv3 = surfaceShader.GetUniformLocation("tv3");
-			var tv4 = surfaceShader.GetUniformLocation("tv4");
-			var tv5 = surfaceShader.GetUniformLocation("tv5");
-			var tv6 = surfaceShader.GetUniformLocation("tv6");
-			var tv7 = surfaceShader.GetUniformLocation("tv7");
-
-			var vs = new List<float> { vDivs[0].Value * 3 - vDivs[1].Value * 2, vDivs[0].Value * 2 - vDivs[1].Value }.Concat(vDivs.Select(x => x.Value))
-				.Concat(new List<float>
-				{
-					vDivs[vDivs.Count - 1].Value * 2 - vDivs[vDivs.Count - 2].Value,
-					vDivs[vDivs.Count - 1].Value * 3 - vDivs[vDivs.Count - 2].Value * 2
-				})
-				.ToList();
-
-			var us = new List<float> { uDivs[0].Value * 2 - uDivs[2].Value, uDivs[0].Value * 2 - uDivs[1].Value }.Concat(uDivs.Select(x => x.Value))
-				.Concat(new List<float>
-				{
-					uDivs[uDivs.Count - 1].Value * 2 - uDivs[uDivs.Count - 2].Value,
-					uDivs[uDivs.Count - 1].Value * 2 - uDivs[uDivs.Count - 3].Value
-				})
-				.ToList();
-
-			//draw every patch
-			for (int i = 0; i < patchesX; i++)
+			try
 			{
-				surfaceShader.Bind(tu1, us[i + 1] - us[i]);
-				surfaceShader.Bind(tu2, us[i + 2] - us[i]);
-				surfaceShader.Bind(tu3, us[i + 3] - us[i]);
-				surfaceShader.Bind(tu4, us[i + 4] - us[i]);
-				surfaceShader.Bind(tu5, us[i + 5] - us[i]);
-				surfaceShader.Bind(tu6, us[i + 6] - us[i]);
-				surfaceShader.Bind(tu7, us[i + 7] - us[i]);
 
-				for (int j = 0; j < patchesY; j++)
+				for (int i = 0; i < u; i++)
+				for (int j = 0; j < v; j++)
 				{
-					surfaceShader.Bind(tv1, vs[j + 1] - vs[j]);
-					surfaceShader.Bind(tv2, vs[j + 2] - vs[j]);
-					surfaceShader.Bind(tv3, vs[j + 3] - vs[j]);
-					surfaceShader.Bind(tv4, vs[j + 4] - vs[j]);
-					surfaceShader.Bind(tv5, vs[j + 5] - vs[j]);
-					surfaceShader.Bind(tv6, vs[j + 6] - vs[j]);
-					surfaceShader.Bind(tv7, vs[j + 7] - vs[j]);
+					var loc = $"functions[{i * v + j}].";
+					var controlPoint = surfaceShader.GetUniformLocation(loc + "controlPoint");
+					var uStart = surfaceShader.GetUniformLocation(loc + "uStart");
+					var uDistances = surfaceShader.GetUniformLocation(loc + "uDistances");
+					var vStart = surfaceShader.GetUniformLocation(loc + "vStart");
+					var vDistances = surfaceShader.GetUniformLocation(loc + "vDistances");
 
-					surfaceShader.Bind(b00, points[i + 0, j + 0].Position);
-					surfaceShader.Bind(b01, points[i + 0, j + 1].Position);
-					surfaceShader.Bind(b02, points[i + 0, j + 2].Position);
-					surfaceShader.Bind(b03, points[i + 0, j + 3].Position);
-					surfaceShader.Bind(b10, points[i + 1, j + 0].Position);
-					surfaceShader.Bind(b11, points[i + 1, j + 1].Position);
-					surfaceShader.Bind(b12, points[i + 1, j + 2].Position);
-					surfaceShader.Bind(b13, points[i + 1, j + 3].Position);
-					surfaceShader.Bind(b20, points[i + 2, j + 0].Position);
-					surfaceShader.Bind(b21, points[i + 2, j + 1].Position);
-					surfaceShader.Bind(b22, points[i + 2, j + 2].Position);
-					surfaceShader.Bind(b23, points[i + 2, j + 3].Position);
-					surfaceShader.Bind(b30, points[i + 3, j + 0].Position);
-					surfaceShader.Bind(b31, points[i + 3, j + 1].Position);
-					surfaceShader.Bind(b32, points[i + 3, j + 2].Position);
-					surfaceShader.Bind(b33, points[i + 3, j + 3].Position);
+					float pu1, pu2, pu3, pu4, pu5, pv1, pv2, pv3, pv4, pv5;
 
+					pu1 = (i - 2) * du;
+					pu2 = (i - 1) * du;
+					pu3 = i * du;
+					pu4 = (i + 1) * du;
+					pu5 = (i + 2) * du;
 
+					pv1 = (j - 2) * dv;
+					pv2 = (j - 1) * dv;
+					pv3 = j * dv;
+					pv4 = (j + 1) * dv;
+					pv5 = (j + 2) * dv;
 
-					surfaceMesh.Render();
+					surfaceShader.Bind(uStart, pu1);
+					surfaceShader.Bind(vStart, pv1);
+					surfaceShader.Bind(uDistances, new Vector4(pu2, pu3, pu4, pu5));
+					surfaceShader.Bind(vDistances, new Vector4(pv2, pv3, pv4, pv5));
+					surfaceShader.Bind(controlPoint, points[i, j].Position);
+
 				}
+
+				var ptsCount = surfaceShader.GetUniformLocation("usedPoints");
+				surfaceShader.Bind(ptsCount, u * v);
+
+				var size = surfaceShader.GetUniformLocation("size");
+				surfaceShader.Bind(size, new Vector2(1, 1));
 			}
+			catch (Exception e)
+			{
+				// ignored
+			}
+			surfaceMesh.Render();
+
+			//const int MaxPoints = 192;
+			//	struct BaseFunction
+			//{
+			//	vec4 controlPoint;
+			//	float uStart;
+			//	vec4 uDistances;
+			//	float vStart;
+			//	vec4 vDistances;
+			//};
+
+			//uniform BaseFunction functions[MaxPoints];
+
+			//uniform int usedPoints;
+			//uniform vec2 size;
+
+			//var b00 = surfaceShader.GetUniformLocation("b00");
+			//var b01 = surfaceShader.GetUniformLocation("b01");
+			//var b02 = surfaceShader.GetUniformLocation("b02");
+			//var b03 = surfaceShader.GetUniformLocation("b03");
+			//var b10 = surfaceShader.GetUniformLocation("b10");
+			//var b11 = surfaceShader.GetUniformLocation("b11");
+			//var b12 = surfaceShader.GetUniformLocation("b12");
+			//var b13 = surfaceShader.GetUniformLocation("b13");
+			//var b20 = surfaceShader.GetUniformLocation("b20");
+			//var b21 = surfaceShader.GetUniformLocation("b21");
+			//var b22 = surfaceShader.GetUniformLocation("b22");
+			//var b23 = surfaceShader.GetUniformLocation("b23");
+			//var b30 = surfaceShader.GetUniformLocation("b30");
+			//var b31 = surfaceShader.GetUniformLocation("b31");
+			//var b32 = surfaceShader.GetUniformLocation("b32");
+			//var b33 = surfaceShader.GetUniformLocation("b33");
+
+
+			//var tu1 = surfaceShader.GetUniformLocation("tu1");
+			//var tu2 = surfaceShader.GetUniformLocation("tu2");
+			//var tu3 = surfaceShader.GetUniformLocation("tu3");
+			//var tu4 = surfaceShader.GetUniformLocation("tu4");
+			//var tu5 = surfaceShader.GetUniformLocation("tu5");
+			//var tu6 = surfaceShader.GetUniformLocation("tu6");
+			//var tu7 = surfaceShader.GetUniformLocation("tu7");
+
+			//var tv1 = surfaceShader.GetUniformLocation("tv1");
+			//var tv2 = surfaceShader.GetUniformLocation("tv2");
+			//var tv3 = surfaceShader.GetUniformLocation("tv3");
+			//var tv4 = surfaceShader.GetUniformLocation("tv4");
+			//var tv5 = surfaceShader.GetUniformLocation("tv5");
+			//var tv6 = surfaceShader.GetUniformLocation("tv6");
+			//var tv7 = surfaceShader.GetUniformLocation("tv7");
+
+			//var vs = new List<float> { vDivs[0].Value * 3 - vDivs[1].Value * 2, vDivs[0].Value * 2 - vDivs[1].Value }.Concat(vDivs.Select(x => x.Value))
+			//	.Concat(new List<float>
+			//	{
+			//		vDivs[vDivs.Count - 1].Value * 2 - vDivs[vDivs.Count - 2].Value,
+			//		vDivs[vDivs.Count - 1].Value * 3 - vDivs[vDivs.Count - 2].Value * 2
+			//	})
+			//	.ToList();
+
+			//var us = new List<float> { uDivs[0].Value * 2 - uDivs[2].Value, uDivs[0].Value * 2 - uDivs[1].Value }.Concat(uDivs.Select(x => x.Value))
+			//	.Concat(new List<float>
+			//	{
+			//		uDivs[uDivs.Count - 1].Value * 2 - uDivs[uDivs.Count - 2].Value,
+			//		uDivs[uDivs.Count - 1].Value * 2 - uDivs[uDivs.Count - 3].Value
+			//	})
+			//	.ToList();
+
+			////draw every patch
+			//for (int i = 0; i < patchesX; i++)
+			//{
+			//	surfaceShader.Bind(tu1, us[i + 1] - us[i]);
+			//	surfaceShader.Bind(tu2, us[i + 2] - us[i]);
+			//	surfaceShader.Bind(tu3, us[i + 3] - us[i]);
+			//	surfaceShader.Bind(tu4, us[i + 4] - us[i]);
+			//	surfaceShader.Bind(tu5, us[i + 5] - us[i]);
+			//	surfaceShader.Bind(tu6, us[i + 6] - us[i]);
+			//	surfaceShader.Bind(tu7, us[i + 7] - us[i]);
+
+			//	for (int j = 0; j < patchesY; j++)
+			//	{
+			//		surfaceShader.Bind(tv1, vs[j + 1] - vs[j]);
+			//		surfaceShader.Bind(tv2, vs[j + 2] - vs[j]);
+			//		surfaceShader.Bind(tv3, vs[j + 3] - vs[j]);
+			//		surfaceShader.Bind(tv4, vs[j + 4] - vs[j]);
+			//		surfaceShader.Bind(tv5, vs[j + 5] - vs[j]);
+			//		surfaceShader.Bind(tv6, vs[j + 6] - vs[j]);
+			//		surfaceShader.Bind(tv7, vs[j + 7] - vs[j]);
+
+			//		surfaceShader.Bind(b00, points[i + 0, j + 0].Position);
+			//		surfaceShader.Bind(b01, points[i + 0, j + 1].Position);
+			//		surfaceShader.Bind(b02, points[i + 0, j + 2].Position);
+			//		surfaceShader.Bind(b03, points[i + 0, j + 3].Position);
+			//		surfaceShader.Bind(b10, points[i + 1, j + 0].Position);
+			//		surfaceShader.Bind(b11, points[i + 1, j + 1].Position);
+			//		surfaceShader.Bind(b12, points[i + 1, j + 2].Position);
+			//		surfaceShader.Bind(b13, points[i + 1, j + 3].Position);
+			//		surfaceShader.Bind(b20, points[i + 2, j + 0].Position);
+			//		surfaceShader.Bind(b21, points[i + 2, j + 1].Position);
+			//		surfaceShader.Bind(b22, points[i + 2, j + 2].Position);
+			//		surfaceShader.Bind(b23, points[i + 2, j + 3].Position);
+			//		surfaceShader.Bind(b30, points[i + 3, j + 0].Position);
+			//		surfaceShader.Bind(b31, points[i + 3, j + 1].Position);
+			//		surfaceShader.Bind(b32, points[i + 3, j + 2].Position);
+			//		surfaceShader.Bind(b33, points[i + 3, j + 3].Position);
+
+
+
+			//		surfaceMesh.Render();
+			//	}
+			//}
 
 		}
 	}

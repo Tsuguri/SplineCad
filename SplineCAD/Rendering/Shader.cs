@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using OpenTK;
-using OpenTK.Graphics.OpenGL4;
+using OpenTK.Graphics.OpenGL;
 
 namespace SplineCAD.Rendering
 {

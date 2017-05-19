@@ -14,7 +14,7 @@ struct BaseFunction
 
 uniform BaseFunction functions[MaxPoints];
 
-uniform int usedPoints;
+uniform float usedPoints;
 uniform vec2 size;
 
 uniform mat4 viewMatrix;
@@ -74,5 +74,7 @@ void main()
 	}
 	vec3 result = tsplineValue.xyz / tsplineValue.w;
 
+	//if(tsplineValue.length()<0.01)
+	//result = vec3(position.x, tsplineValue.w, position.y);
     gl_Position = vec4(result, 1.0) * viewMatrix * projMatrix;
 }
