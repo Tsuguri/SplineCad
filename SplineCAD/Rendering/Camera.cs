@@ -108,7 +108,7 @@ namespace SplineCAD.Rendering
 
         public void Zoom(float d)
         {
-            position += position * d;
+            position.Z += d;
 
             viewMatrix.Row0.W = -position.X;
             viewMatrix.Row1.W = -position.Y;

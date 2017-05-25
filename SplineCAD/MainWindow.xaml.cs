@@ -133,7 +133,9 @@ namespace SplineCAD
 			System.Drawing.Point p = e.Location;
 
 			if (e.Button == MouseButtons.Right)
-				MainWindowDataContext.MainCamera.Zoom(0.02f * (p.Y - mousePos.Y));
+            {
+                MainWindowDataContext.MainCamera.Zoom(0.02f * (p.Y - mousePos.Y));
+            }
 			if (e.Button == MouseButtons.Left)
 			{
 				if (Keyboard.IsKeyDown(Key.LeftCtrl) && caughtPoint != null) //point movement
