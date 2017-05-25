@@ -11,9 +11,11 @@
             <RowDefinition Height="250"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="250"/>
+            <RowDefinition Height="100"/>
         </Grid.RowDefinitions>
         <local:SelectedItemDescription Grid.Row="0" />
         <GridSplitter Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Stretch" Background="DarkGray" Margin="0,2,0,2" Height="3" Grid.ColumnSpan="2" />
         <local:ObjectsList Grid.Row="2"></local:ObjectsList>
+        <Button Grid.Row="3" Command="{Binding ExportSceneCommand}">Save</Button>
     </Grid>
 </UserControl>

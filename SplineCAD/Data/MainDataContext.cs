@@ -9,6 +9,7 @@ using OpenTK.Graphics.OpenGL;
 using SplineCAD.Objects;
 using SplineCAD.Rendering;
 using SplineCAD.Utilities;
+using System.Windows.Forms;
 
 namespace SplineCAD.Data
 {
@@ -26,6 +27,7 @@ namespace SplineCAD.Data
 		private ICommand createBsplineCommand;
 		private ICommand createNurbsCommand;
 		private ICommand createTsplineCommand;
+        private ICommand exportSceneCommand;
 
 		private bool changed;
 
@@ -64,7 +66,10 @@ namespace SplineCAD.Data
 		public ICommand CreateTsplineCommand => createTsplineCommand ??
 		                                        (createTsplineCommand = new CommandHandler(CreateTsplineMesh));
 
-		public ObservableCollection<Model> SceneObjects => sceneObjects;
+        public ICommand ExportSceneCommand => exportSceneCommand ??
+                                                (exportSceneCommand = new CommandHandler(ExportScene));
+
+        public ObservableCollection<Model> SceneObjects => sceneObjects;
 
 		public Model SelectedModel
 		{
@@ -245,11 +250,23 @@ namespace SplineCAD.Data
 
 
 
-		#endregion
+        #endregion
 
-		#region Rendering
+        #region Export
 
-		public void Render()
+        private void ExportScene()
+        {
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.Filter = "IGES files (*.igs)|*.igs";
+            dialog.ShowDialog();
+            FileManager.ExportToIGS(SceneObjects.ToList(), dialog.FileName);
+        }
+
+        #endregion
+
+        #region Rendering
+
+        public void Render()
 		{
 			if (changed)
 			{
