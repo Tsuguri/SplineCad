@@ -56,6 +56,7 @@ namespace SplineCAD.Objects
 		public ObservableCollection<FloatWrapper> UDivs => uDivs;
 		public ObservableCollection<FloatWrapper> VDivs => vDivs;
 
+        public IPoint<Vector4>[,] Points { get => points; }
 
 		protected override void PatchDivChanged()
 		{

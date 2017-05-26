@@ -131,7 +131,8 @@ namespace SplineCAD.Data
 
 			camera = new Camera(new Vector3(0.0f, 0.0f, 5.0f));
 
-			CreateTsplineMesh();
+            CreateNurbsMesh();
+			//CreateTsplineMesh();
 		}
 
 		private void InitializeShaders()
