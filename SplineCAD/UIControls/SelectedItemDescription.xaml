@@ -92,6 +92,37 @@
                             </ListBox>
                         </Grid>
                     </DataTemplate>
+                    <DataTemplate DataType="{x:Type models:TSplineSurface}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="25" />
+                                <RowDefinition Height="25" />
+                                <RowDefinition Height="25" />
+                                <RowDefinition Height="25" />
+                                <RowDefinition Height="25" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock>Name</TextBlock>
+                            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding  Name}" />
+                            <TextBlock Grid.Row="1" Grid.Column="0">Show Polygon</TextBlock>
+                            <ToggleButton Grid.Row="1" Grid.Column="1" IsChecked="{Binding PolygonVisible}" />
+                            <TextBlock Grid.Row="2" Grid.Column="0">Fill Surface</TextBlock>
+                            <ToggleButton Grid.Row="2" Grid.Column="1" IsChecked="{Binding FillSurface}" />
+                            <TextBlock Grid.Row="3" Grid.Column="0">PatchDiv</TextBlock>
+                            <Grid Grid.Row="3" Grid.Column="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <local:NumericSlider Grid.Column="0" Value="{Binding PatchDivX}" IncrementMultiplier="1" ></local:NumericSlider>
+                                <local:NumericSlider Grid.Column="1" Value="{Binding PatchDivY}" IncrementMultiplier="1" ></local:NumericSlider>
+                            </Grid>
+                        </Grid>
+                    </DataTemplate>
                 </ContentControl.Resources>
             </ContentControl>
         </StackPanel>

@@ -12,7 +12,7 @@ using SplineCAD.Utilities;
 
 namespace SplineCAD.Objects
 {
-	class TsplineSurface : Surface
+	class TSplineSurface : Surface
 	{
 		private class UComparer : IComparer<PointWrapper>
 		{
@@ -37,7 +37,7 @@ namespace SplineCAD.Objects
 			private readonly float v;
 			private readonly Line uLine;
 			private readonly Line vLine;
-			private TsplineSurface surface;
+			private TSplineSurface surface;
 			public Vector4 Position => point.Position;
 
 			public Vector4 UDistances { get; private set; }
@@ -47,7 +47,7 @@ namespace SplineCAD.Objects
 			public float U => u;
 			public float V => v;
 
-			public PointWrapper(IPoint<Vector4> point, float u, float v, Line uLine, Line vLine, TsplineSurface surface)
+			public PointWrapper(IPoint<Vector4> point, float u, float v, Line uLine, Line vLine, TSplineSurface surface)
 			{
 				this.u = u;
 				this.v = v;
@@ -132,6 +132,7 @@ namespace SplineCAD.Objects
 
 		private Vector4 GetPointKnots(PointWrapper point, bool uKnots)
 		{
+			FillSurface = false;
 			var l = uKnots ? uLines : vLines;
 			var pos = uKnots ? point.U : point.V;
 			var second = uKnots ? point.V : point.U;
@@ -160,7 +161,7 @@ namespace SplineCAD.Objects
 			tmp++;
 			while (tmp < l.Count && (l[tmp].From > second || l[tmp].To < second))
 				tmp++;
-			vec.W = tmp >= l.Count ? 1.0f + 0.001f * Math.Abs(tmp-l.Count+1) : l[tmp].Value;
+			vec.W = tmp >= l.Count ? 1.0f + 0.001f * Math.Abs(tmp - l.Count + 1) : l[tmp].Value;
 
 			return vec;
 		}
@@ -171,7 +172,7 @@ namespace SplineCAD.Objects
 			divChanged = true;
 		}
 
-		public TsplineSurface(MainDataContext data, Shader surfaceShader, Shader polygonShader, IPoint<Vector4>[,] controlPoints)
+		public TSplineSurface(MainDataContext data, Shader surfaceShader, Shader polygonShader, IPoint<Vector4>[,] controlPoints)
 		{
 			this.sceneData = data;
 			this.surfaceShader = surfaceShader;
@@ -189,11 +190,11 @@ namespace SplineCAD.Objects
 
 			for (int i = 0; i < ptsX; i++)
 			{
-				uLines.Add(new Line((float)(i * uDiv), 0, 1, new UComparer()));
+				uLines.Add(new Line((float)(i * uDiv), 0, 1, new VComparer()));
 			}
 			for (int i = 0; i < ptsY; i++)
 			{
-				vLines.Add(new Line((float)(i * vDiv), 0, 1, new VComparer()));
+				vLines.Add(new Line((float)(i * vDiv), 0, 1, new UComparer()));
 			}
 
 			for (int i = 0; i < ptsX; i++)
@@ -206,6 +207,27 @@ namespace SplineCAD.Objects
 					vline.AddPoint(pt);
 					tsplinePoints.Add(pt);
 				}
+
+			var one = uLines[0];
+			var two = uLines[1];
+			var v = (vLines[0].Value + vLines[1].Value) / 2;
+			
+			var pt1 = data.CreateRationalPoint();
+			var pt2 = data.CreateRationalPoint();
+
+			var edgu = new Line(v, one.Value, two.Value, new UComparer());
+
+			var pt21 = new PointWrapper(pt1, one.Value, v, one, edgu, this);
+			var pt22 = new PointWrapper(pt2, two.Value, v, two, edgu, this);
+
+			tsplinePoints.Add(pt21);
+			one.AddPoint(pt21);
+			two.AddPoint(pt22);
+			edgu.AddPoint(pt21);
+			edgu.AddPoint(pt22);
+			vLines.Add(edgu);
+			tsplinePoints.Add(pt22);
+
 			RecalculateKnots();
 
 			mesh = new Vector4RectangesPolygonMesh(points);
@@ -214,7 +236,7 @@ namespace SplineCAD.Objects
 
 		public void InsertPoint(float u, float v)
 		{
-			
+
 		}
 
 		private void RecalculateKnots()
