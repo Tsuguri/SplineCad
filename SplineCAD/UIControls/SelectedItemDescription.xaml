@@ -100,6 +100,8 @@
                                 <RowDefinition Height="25" />
                                 <RowDefinition Height="25" />
                                 <RowDefinition Height="25" />
+                                <RowDefinition Height="25" />
+                                <RowDefinition Height="25" />
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -121,6 +123,11 @@
                                 <local:NumericSlider Grid.Column="0" Value="{Binding PatchDivX}" IncrementMultiplier="1" ></local:NumericSlider>
                                 <local:NumericSlider Grid.Column="1" Value="{Binding PatchDivY}" IncrementMultiplier="1" ></local:NumericSlider>
                             </Grid>
+                            <ToggleButton Grid.Row="4" Grid.Column="0" IsChecked="{Binding U}" />
+                            <local:NumericSlider Grid.Row="4" Grid.Column="1" Value="{Binding Val}" IncrementMultiplier="0.01" />
+                            <local:NumericSlider Grid.Row="5" Grid.Column="0" Value="{Binding ValFrom}" IncrementMultiplier="0.01" />
+                            <local:NumericSlider Grid.Row="5" Grid.Column="1" Value="{Binding ValTo}" IncrementMultiplier="0.01" />
+                            <Button Grid.Row="6" Grid.Column="1" Command="{Binding AddEdge}" />
                         </Grid>
                     </DataTemplate>
                 </ContentControl.Resources>

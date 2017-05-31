@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using SplineCAD.Data;
@@ -14,6 +15,8 @@ namespace SplineCAD.Objects
 {
 	class TSplineSurface : Surface
 	{
+		#region Types
+
 		private class UComparer : IComparer<PointWrapper>
 		{
 			public int Compare(PointWrapper x, PointWrapper y)
@@ -92,9 +95,9 @@ namespace SplineCAD.Objects
 
 		}
 
+		#endregion
 
 
-		//private IPoint<Vector4>[,] points;
 
 		private List<PointWrapper> tsplinePoints;
 
@@ -120,32 +123,154 @@ namespace SplineCAD.Objects
 		private readonly Shader polygonShader;
 
 		private bool divChanged;
+		private bool pointsChanged;
 
-		public class FloatWrapper : BindableObject
+		private int i = 0;
+
+		#region EdgesInsertionUI
+
+		private bool u;
+
+		public bool U
 		{
-			private float val;
-			public float Value
+			get => u;
+			set
 			{
-				get => val;
-				set
-				{
-					val = value;
-					OnPropertyChanged();
-				}
-			}
-
-			internal FloatWrapper(float value)
-			{
-				Value = value;
+				u = value;
+				OnPropertyChanged();
 			}
 		}
 
-		private int i = 0;
+		private float valFrom, valTo, val;
+
+		public float ValFrom
+		{
+			get => valFrom;
+			set
+			{
+				if (value < ValTo)
+				{
+					valFrom = value;
+					OnPropertyChanged();
+				}
+			}
+		}
+
+		public float ValTo
+		{
+			get => valTo;
+			set
+			{
+				if (value > ValFrom)
+				{
+					valTo = value;
+					OnPropertyChanged();
+				}
+			}
+		}
+
+		public float Val
+		{
+			get => val;
+			set
+			{
+				if (value > 0 && value < 1)
+					val = value;
+				OnPropertyChanged();
+			}
+		}
+
+		private ICommand addEdge;
+		public ICommand AddEdge => addEdge ?? (addEdge = new CommandHandler(AddEdgeUi));
+
+		private void AddEdgeUi()
+		{
+			InsertEdge(ValFrom, ValTo, Val, U);
+		}
+
+		#endregion
+
+
+
+		protected override void PatchDivChanged()
+		{
+			base.PatchDivChanged();
+			divChanged = true;
+		}
+
+		public TSplineSurface(MainDataContext data, Shader surfaceShader, Shader polygonShader, IPoint<Vector4>[,] controlPoints)
+		{
+			this.sceneData = data;
+			this.surfaceShader = surfaceShader;
+			this.polygonShader = polygonShader;
+
+			var ptsX = controlPoints.GetLength(0);
+			var ptsY = controlPoints.GetLength(1);
+
+			var uDiv = 1.0 / (ptsX - 1);
+			var vDiv = 1.0 / (ptsY - 1);
+			uLines = new List<Line>(ptsX);
+			vLines = new List<Line>(ptsY);
+			tsplinePoints = new List<PointWrapper>(ptsX * ptsY);
+
+			for (int i = 0; i < ptsX; i++)
+			{
+				uLines.Add(new Line((float)(i * uDiv), 0, 1, new VComparer()));
+			}
+			for (int i = 0; i < ptsY; i++)
+			{
+				vLines.Add(new Line((float)(i * vDiv), 0, 1, new UComparer()));
+			}
+
+			for (int i = 0; i < ptsX; i++)
+				for (int j = 0; j < ptsY; j++)
+				{
+					var uline = uLines[i];
+					var vline = vLines[j];
+					var pt = new PointWrapper(controlPoints[i, j], (float)(i * uDiv), (float)(j * vDiv), this);
+					uline.AddPoint(pt);
+					vline.AddPoint(pt);
+					tsplinePoints.Add(pt);
+				}
+			pointsChanged = true;
+
+			surfaceMesh = new SurfaceMesh((uint)PatchDivX, (uint)PatchDivY);
+		}
+
+		private void CreatePolygonMesh()
+		{
+			var vertices = tsplinePoints.Select(x => x.Point).ToList();
+			var indices = new List<uint>();
+			Dictionary<PointWrapper, uint> indexMap = new Dictionary<PointWrapper, uint>();
+
+			uint i = 0;
+			foreach (var tsplinePoint in tsplinePoints)
+			{
+				indexMap.Add(tsplinePoint, i);
+				i++;
+			}
+
+			foreach (var uLine in uLines.Concat(vLines))
+			{
+				var first = uLine.GetPoints().First();
+				foreach (var pointWrapper in uLine.GetPoints().Skip(1))
+				{
+					indices.Add(indexMap[first]);
+					indices.Add(indexMap[pointWrapper]);
+					first = pointWrapper;
+				}
+			}
+			selfMesh?.Dispose();
+			selfMesh = new Vector4SelfActualizingMesh(vertices, indices.ToArray(), BeginMode.Lines);
+
+		}
+
+		private const double Eps = 1e-10;
+
 		private Vector4 GetPointKnots(PointWrapper point, bool uKnots)
 		{
 			if (uKnots)
 				i++;
-			FillSurface = false;
 			var l = uKnots ? uLines : vLines;
 			var pos = uKnots ? point.U : point.V;
 			var second = uKnots ? point.V : point.U;
@@ -179,117 +304,6 @@ namespace SplineCAD.Objects
 			return vec;
 		}
 
-		protected override void PatchDivChanged()
-		{
-			base.PatchDivChanged();
-			divChanged = true;
-		}
-
-		public TSplineSurface(MainDataContext data, Shader surfaceShader, Shader polygonShader, IPoint<Vector4>[,] controlPoints)
-		{
-			this.sceneData = data;
-			this.surfaceShader = surfaceShader;
-			this.polygonShader = polygonShader;
-			//this.points = controlPoints;
-
-			var ptsX = controlPoints.GetLength(0);
-			var ptsY = controlPoints.GetLength(1);
-
-			var uDiv = 1.0 / (ptsX - 1);
-			var vDiv = 1.0 / (ptsY - 1);
-			uLines = new List<Line>(ptsX);
-			vLines = new List<Line>(ptsY);
-			tsplinePoints = new List<PointWrapper>(ptsX * ptsY);
-
-			for (int i = 0; i < ptsX; i++)
-			{
-				uLines.Add(new Line((float)(i * uDiv), 0, 1, new VComparer()));
-			}
-			for (int i = 0; i < ptsY; i++)
-			{
-				vLines.Add(new Line((float)(i * vDiv), 0, 1, new UComparer()));
-			}
-
-			for (int i = 0; i < ptsX; i++)
-				for (int j = 0; j < ptsY; j++)
-				{
-					var uline = uLines[i];
-					var vline = vLines[j];
-					var pt = new PointWrapper(controlPoints[i, j], (float)(i * uDiv), (float)(j * vDiv), this);
-					uline.AddPoint(pt);
-					vline.AddPoint(pt);
-					tsplinePoints.Add(pt);
-				}
-
-			//var one = uLines[0];
-			//var two = uLines[1];
-			//var value = (vLines[0].Value + vLines[1].Value) / 2;
-
-			//var pt1 = data.CreateRationalPoint();
-			//var pt2 = data.CreateRationalPoint();
-
-			//var edgu = new Line(value, one.Value, two.Value, new UComparer());
-
-			//var pt21 = new PointWrapper(pt1, one.Value, value, this);
-			//var pt22 = new PointWrapper(pt2, two.Value, value, this);
-
-			//tsplinePoints.Add(pt21);
-			//one.AddPoint(pt21);
-			//two.AddPoint(pt22);
-			//edgu.AddPoint(pt21);
-			//edgu.AddPoint(pt22);
-			//vLines.Add(edgu);
-			//tsplinePoints.Add(pt22);
-
-
-			var val = (uLines[0].Value + uLines[1].Value) / 2;
-			var from = vLines[0].Value;
-			var mid = vLines[1].Value;
-			var to = vLines[2].Value;
-			var toer = vLines[3].Value;
-			var toest = vLines[4].Value;
-			var toester = vLines[5].Value;
-			InsertEdge(toest, toester, val, true);
-			InsertEdge(from, mid, val, true);
-			//InsertEdge(to, toer, val, true);
-			//InsertEdge(from + 0.05f, toer + 0.05f, val * 3, true);
-			//InsertEdge(toer, toest, val, true);
-			//InsertEdge(from, mid, val, false);
-
-			surfaceMesh = new SurfaceMesh((uint)PatchDivX, (uint)PatchDivY);
-			CreatePolygonMesh();
-			RecalculateKnots();
-		}
-
-		private void CreatePolygonMesh()
-		{
-			var vertices = tsplinePoints.Select(x => x.Point).ToList();
-			var indices = new List<uint>();
-			Dictionary<PointWrapper, uint> indexMap = new Dictionary<PointWrapper, uint>();
-
-			uint i = 0;
-			foreach (var tsplinePoint in tsplinePoints)
-			{
-				indexMap.Add(tsplinePoint, i);
-				i++;
-			}
-
-			foreach (var uLine in uLines.Concat(vLines))
-			{
-				var first = uLine.GetPoints().First();
-				foreach (var pointWrapper in uLine.GetPoints().Skip(1))
-				{
-					indices.Add(indexMap[first]);
-					indices.Add(indexMap[pointWrapper]);
-					first = pointWrapper;
-				}
-			}
-			selfMesh?.Dispose();
-			selfMesh = new Vector4SelfActualizingMesh(vertices, indices.ToArray(), BeginMode.Lines);
-
-		}
-
-		private const double Eps = 1e-10;
 
 		public void InsertEdge(float from, float to, float value, bool u)
 		{
@@ -378,6 +392,23 @@ namespace SplineCAD.Objects
 				{
 					var pt = sceneData.CreateRationalPoint();
 					var wrap = new PointWrapper(pt, u ? value : inter.Value, u ? inter.Value : value, this);
+					PointWrapper previous, after;
+					float t = 0;
+					if (u)
+					{
+						after = inter.GetPoints().FirstOrDefault(x => x.U > value);
+						previous = inter.GetPoints().Reverse().FirstOrDefault(x => x.U < value);
+						t = (value - previous.U) / (after.U - previous.U);
+					}
+					else
+					{
+						after = inter.GetPoints().FirstOrDefault(x => x.V > value);
+						previous = inter.GetPoints().Reverse().FirstOrDefault(x => x.V < value);
+						t = (value - previous.V) / (after.V - previous.V);
+
+					}
+					pt.Position = after.Position * t + (1 - t) * previous.Position;
+
 					line.AddPoint(wrap);
 					inter.AddPoint(wrap);
 					tsplinePoints.Add(wrap);
@@ -385,12 +416,11 @@ namespace SplineCAD.Objects
 			}
 
 
-
+			pointsChanged = true;
 			int z = 0;
 
 
 		}
-
 
 		private Line NewEdge(float from, float to, float val, bool u)
 		{
@@ -453,6 +483,8 @@ namespace SplineCAD.Objects
 			}
 		}
 
+
+
 		public override void CleanUp()
 		{
 			selfMesh.Dispose();
@@ -461,6 +493,13 @@ namespace SplineCAD.Objects
 
 		public override void Render()
 		{
+			if (pointsChanged)
+			{
+				RecalculateKnots();
+				CreatePolygonMesh();
+				pointsChanged = false;
+			}
+
 			if (divChanged)
 			{
 				divChanged = false;

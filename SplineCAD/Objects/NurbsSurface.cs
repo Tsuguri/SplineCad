@@ -31,24 +31,7 @@ namespace SplineCAD.Objects
 
 		private bool divChanged;
 
-		public class FloatWrapper : BindableObject
-		{
-			private float val;
-			public float Value 
-			{
-				get => val;
-				set
-				{
-					val = value;
-					OnPropertyChanged();
-				}
-			}
 
-			internal FloatWrapper(float value)
-			{
-				Value = value;
-			}
-		}
 
 		private readonly ObservableCollection<FloatWrapper> uDivs;
 		private readonly ObservableCollection<FloatWrapper> vDivs;
