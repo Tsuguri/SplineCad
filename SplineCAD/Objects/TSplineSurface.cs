@@ -39,6 +39,7 @@ namespace SplineCAD.Objects
 			private readonly Line vLine;
 			private TSplineSurface surface;
 			public Vector4 Position => point.Position;
+			public IPoint<Vector4> Point => point;
 
 			public Vector4 UDistances { get; private set; }
 			public Vector4 VDistances { get; private set; }
@@ -88,11 +89,16 @@ namespace SplineCAD.Objects
 				points.Add(point);
 			}
 
+			public IEnumerable<PointWrapper> GetPoints()
+			{
+				return points;
+			}
+
 		}
 
 
 
-		private IPoint<Vector4>[,] points;
+		//private IPoint<Vector4>[,] points;
 
 		private List<PointWrapper> tsplinePoints;
 		private List<Line> uLines;
@@ -100,7 +106,7 @@ namespace SplineCAD.Objects
 
 		private MainDataContext sceneData;
 
-		private readonly Vector4RectangesPolygonMesh mesh;
+		private Vector4SelfActualizingMesh selfMesh;
 		private SurfaceMesh surfaceMesh;
 
 		private readonly int patchesX;
@@ -177,7 +183,7 @@ namespace SplineCAD.Objects
 			this.sceneData = data;
 			this.surfaceShader = surfaceShader;
 			this.polygonShader = polygonShader;
-			this.points = controlPoints;
+			//this.points = controlPoints;
 
 			var ptsX = controlPoints.GetLength(0);
 			var ptsY = controlPoints.GetLength(1);
@@ -211,7 +217,7 @@ namespace SplineCAD.Objects
 			var one = uLines[0];
 			var two = uLines[1];
 			var v = (vLines[0].Value + vLines[1].Value) / 2;
-			
+
 			var pt1 = data.CreateRationalPoint();
 			var pt2 = data.CreateRationalPoint();
 
@@ -230,11 +236,40 @@ namespace SplineCAD.Objects
 
 			RecalculateKnots();
 
-			mesh = new Vector4RectangesPolygonMesh(points);
 			surfaceMesh = new SurfaceMesh((uint)PatchDivX, (uint)PatchDivY);
+			CreatePolygonMesh();
 		}
 
-		public void InsertPoint(float u, float v)
+		private void CreatePolygonMesh()
+		{
+			var vertices = tsplinePoints.Select(x => x.Point).ToList();
+			var indices = new List<uint>();
+			Dictionary<PointWrapper, uint> indexMap = new Dictionary<PointWrapper, uint>();
+
+			uint i = 0;
+			foreach (var tsplinePoint in tsplinePoints)
+			{
+				indexMap.Add(tsplinePoint, i);
+				i++;
+			}
+
+			foreach (var uLine in uLines.Concat(vLines))
+			{
+				var first = uLine.GetPoints().First();
+				foreach (var pointWrapper in uLine.GetPoints().Skip(1))
+				{
+					indices.Add(indexMap[first]);
+					indices.Add(indexMap[pointWrapper]);
+					first = pointWrapper;
+				}
+			}
+			selfMesh?.Dispose();
+			selfMesh = new Vector4SelfActualizingMesh(vertices, indices.ToArray(), BeginMode.Lines);
+
+		}
+
+
+		public void InsertEdge(float u, float v)
 		{
 
 		}
@@ -252,7 +287,7 @@ namespace SplineCAD.Objects
 
 		public override void CleanUp()
 		{
-			mesh.Dispose();
+			selfMesh.Dispose();
 			surfaceMesh.Dispose();
 		}
 
@@ -267,7 +302,7 @@ namespace SplineCAD.Objects
 			if (PolygonVisible)
 			{
 				polygonShader.Activate();
-				mesh.Render();
+				selfMesh.Render();
 			}
 			GL.PolygonMode(MaterialFace.Front, FillSurface ? PolygonMode.Fill : PolygonMode.Line);
 			GL.PolygonMode(MaterialFace.Back, FillSurface ? PolygonMode.Fill : PolygonMode.Line);
