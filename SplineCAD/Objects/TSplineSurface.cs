@@ -248,9 +248,11 @@ namespace SplineCAD.Objects
 			var to = vLines[2].Value;
 			var toer = vLines[3].Value;
 			var toest = vLines[4].Value;
-			InsertEdge(from, toest, val, false);
-			InsertEdge(from, toest, val, true);
-			InsertEdge(from + 0.05f, toer + 0.05f, val * 3, true);
+			var toester = vLines[5].Value;
+			InsertEdge(toest, toester, val, true);
+			InsertEdge(from, mid, val, true);
+			//InsertEdge(to, toer, val, true);
+			//InsertEdge(from + 0.05f, toer + 0.05f, val * 3, true);
 			//InsertEdge(toer, toest, val, true);
 			//InsertEdge(from, mid, val, false);
 
@@ -300,23 +302,69 @@ namespace SplineCAD.Objects
 
 			if (sameVal.Count > 0)
 			{
+				var overlapping = sameVal.FirstOrDefault(x => x.From < from && x.To > to);
+				if (overlapping != null)
+					return;
+
 				var pre = sameVal.FirstOrDefault(x => Math.Abs(x.To - from) < Eps);
+
+
 				var post = sameVal.FirstOrDefault(x => Math.Abs(x.From - to) < Eps);
 
 				if (pre != null)
 				{
 					line = MergeEdges(pre, line, u);
 				}
+				else
+				{
+					var left = sameVal.Where(x => x.To < from).ToList();
+					if (left.Count > 0)
+					{
+						var lefter = left.Max(x => x.To);
+						var edge = left.FirstOrDefault(x => Math.Abs(x.To - lefter) < Eps);
+						if (edge != null)
+						{
+							var middle = sLines
+								.Count(x => x.Value > edge.To && x.Value < line.From && x.From > line.Value &&
+														   x.To < line.Value);
+							if (middle == 0)
+							{
+								line = MergeEdges(edge, line, u, true);
+							}
+						}
+
+					}
+				}
 				if (post != null)
 				{
 					line = MergeEdges(line, post, u);
+				}
+				else
+				{
+					var right = sameVal.Where(x => x.From > to).ToList();
+					if (right.Count > 0)
+					{
+						var righter = right.Min(x => x.From);
+						var edge = right.FirstOrDefault(x => Math.Abs(x.From - righter) < Eps);
+						if (edge != null)
+						{
+							var middle = sLines
+								.Count(x => x.Value < edge.From && x.Value > line.To && x.From > line.Value &&
+											x.To < line.Value);
+							if (middle == 0)
+							{
+								line = MergeEdges(line, edge, u, true);
+							}
+						}
+
+					}
 				}
 
 			}
 
 			var prev = sLines.Where(x => x.Value < line.From - Eps).ToList();
 			var prevCount = prev.Count;
-			var inters = sLines.Skip(prevCount).Where(x => x.Value < line.To + Eps).OrderBy(x=>x.Value).ToList();
+			var inters = sLines.Skip(prevCount).Where(x => x.Value < line.To + Eps).OrderBy(x => x.Value).ToList();
 
 			if (Math.Abs(inters.First().Value - line.From) > Eps)
 				line.From = inters.First().Value;
@@ -349,7 +397,7 @@ namespace SplineCAD.Objects
 			return u ? NewUEdge(from, to, val) : NewVEdge(from, to, val);
 		}
 
-		private Line MergeEdges(Line one, Line two, bool u)
+		private Line MergeEdges(Line one, Line two, bool u, bool hard = false)
 		{
 			if (Math.Abs(one.Value - two.Value) > Eps)
 				throw new ArgumentException("Lines are not on the same value!");
@@ -357,7 +405,7 @@ namespace SplineCAD.Objects
 			var pre = one.From < two.From ? one : two;
 			var post = one.From < two.From ? two : one;
 
-			if (Math.Abs(pre.To - post.From) > Eps)
+			if (!hard && Math.Abs(pre.To - post.From) > Eps)
 				throw new ArgumentException("Lines ends does not meet!");
 
 			var line = NewEdge(pre.From, post.To, pre.Value, u);
