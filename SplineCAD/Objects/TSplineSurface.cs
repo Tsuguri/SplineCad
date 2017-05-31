@@ -35,8 +35,6 @@ namespace SplineCAD.Objects
 			private readonly IPoint<Vector4> point;
 			private readonly float u;
 			private readonly float v;
-			private readonly Line uLine;
-			private readonly Line vLine;
 			private TSplineSurface surface;
 			public Vector4 Position => point.Position;
 			public IPoint<Vector4> Point => point;
@@ -48,12 +46,10 @@ namespace SplineCAD.Objects
 			public float U => u;
 			public float V => v;
 
-			public PointWrapper(IPoint<Vector4> point, float u, float v, Line uLine, Line vLine, TSplineSurface surface)
+			public PointWrapper(IPoint<Vector4> point, float u, float v, TSplineSurface surface)
 			{
 				this.u = u;
 				this.v = v;
-				this.uLine = uLine;
-				this.vLine = vLine;
 				this.point = point;
 				this.surface = surface;
 			}
@@ -101,7 +97,15 @@ namespace SplineCAD.Objects
 		//private IPoint<Vector4>[,] points;
 
 		private List<PointWrapper> tsplinePoints;
+
+		/// <summary>
+		/// Lines with constant u value;
+		/// </summary>
 		private List<Line> uLines;
+
+		/// <summary>
+		/// Lines with constant v value;
+		/// </summary>
 		private List<Line> vLines;
 
 		private MainDataContext sceneData;
@@ -136,36 +140,39 @@ namespace SplineCAD.Objects
 			}
 		}
 
+		private int i = 0;
 		private Vector4 GetPointKnots(PointWrapper point, bool uKnots)
 		{
+			if (uKnots)
+				i++;
 			FillSurface = false;
 			var l = uKnots ? uLines : vLines;
 			var pos = uKnots ? point.U : point.V;
 			var second = uKnots ? point.V : point.U;
 			Vector4 vec = new Vector4(0);
 
-			var p = l.FirstOrDefault(x => Math.Abs(x.Value - pos) < float.Epsilon);
+			var p = l.FirstOrDefault(x => Math.Abs(x.Value - pos) < float.Epsilon && x.From - Eps < second && x.To + Eps > second);
 			if (p == null)
-				throw new Exception("Bad u value");
+				throw new Exception("Bad value value");
 			var pIndex = l.IndexOf(p);
 			var tmp = pIndex;
 			do
 			{
 				tmp--;
 
-			} while (tmp >= 0 && (l[tmp].From > second || l[tmp].To < second));
+			} while (tmp >= 0 && (l[tmp].From - Eps > second || l[tmp].To + Eps < second));
 			vec.Y = tmp < 0 ? -0.001f : l[tmp].Value;
 			tmp--;
-			while (tmp >= 0 && (l[tmp].From > second || l[tmp].To < second))
+			while (tmp >= 0 && (l[tmp].From - Eps > second || l[tmp].To + Eps < second))
 				tmp--;
 			vec.X = tmp < 0 ? -0.001f * Math.Abs(tmp) : l[tmp].Value;
 
 			tmp = pIndex + 1;
-			while (tmp < l.Count && (l[tmp].From > second || l[tmp].To < second))
+			while (tmp < l.Count && (l[tmp].From - Eps > second || l[tmp].To + Eps < second))
 				tmp++;
 			vec.Z = tmp >= l.Count ? 1.001f : l[tmp].Value;
 			tmp++;
-			while (tmp < l.Count && (l[tmp].From > second || l[tmp].To < second))
+			while (tmp < l.Count && (l[tmp].From - Eps > second || l[tmp].To + Eps < second))
 				tmp++;
 			vec.W = tmp >= l.Count ? 1.0f + 0.001f * Math.Abs(tmp - l.Count + 1) : l[tmp].Value;
 
@@ -208,36 +215,47 @@ namespace SplineCAD.Objects
 				{
 					var uline = uLines[i];
 					var vline = vLines[j];
-					var pt = new PointWrapper(controlPoints[i, j], (float)(i * uDiv), (float)(j * vDiv), uline, vline, this);
+					var pt = new PointWrapper(controlPoints[i, j], (float)(i * uDiv), (float)(j * vDiv), this);
 					uline.AddPoint(pt);
 					vline.AddPoint(pt);
 					tsplinePoints.Add(pt);
 				}
 
-			var one = uLines[0];
-			var two = uLines[1];
-			var v = (vLines[0].Value + vLines[1].Value) / 2;
+			//var one = uLines[0];
+			//var two = uLines[1];
+			//var value = (vLines[0].Value + vLines[1].Value) / 2;
 
-			var pt1 = data.CreateRationalPoint();
-			var pt2 = data.CreateRationalPoint();
+			//var pt1 = data.CreateRationalPoint();
+			//var pt2 = data.CreateRationalPoint();
 
-			var edgu = new Line(v, one.Value, two.Value, new UComparer());
+			//var edgu = new Line(value, one.Value, two.Value, new UComparer());
 
-			var pt21 = new PointWrapper(pt1, one.Value, v, one, edgu, this);
-			var pt22 = new PointWrapper(pt2, two.Value, v, two, edgu, this);
+			//var pt21 = new PointWrapper(pt1, one.Value, value, this);
+			//var pt22 = new PointWrapper(pt2, two.Value, value, this);
 
-			tsplinePoints.Add(pt21);
-			one.AddPoint(pt21);
-			two.AddPoint(pt22);
-			edgu.AddPoint(pt21);
-			edgu.AddPoint(pt22);
-			vLines.Add(edgu);
-			tsplinePoints.Add(pt22);
+			//tsplinePoints.Add(pt21);
+			//one.AddPoint(pt21);
+			//two.AddPoint(pt22);
+			//edgu.AddPoint(pt21);
+			//edgu.AddPoint(pt22);
+			//vLines.Add(edgu);
+			//tsplinePoints.Add(pt22);
 
-			RecalculateKnots();
+
+			var val = (uLines[0].Value + uLines[1].Value) / 2;
+			var from = vLines[0].Value;
+			var mid = vLines[1].Value;
+			var to = vLines[2].Value;
+			var toer = vLines[3].Value;
+			var toest = vLines[4].Value;
+			InsertEdge(from, toest, val, false);
+			InsertEdge(from, toest, val, true);
+			//InsertEdge(toer, toest, val, true);
+			//InsertEdge(from, mid, val, false);
 
 			surfaceMesh = new SurfaceMesh((uint)PatchDivX, (uint)PatchDivY);
 			CreatePolygonMesh();
+			RecalculateKnots();
 		}
 
 		private void CreatePolygonMesh()
@@ -268,16 +286,111 @@ namespace SplineCAD.Objects
 
 		}
 
+		private const double Eps = 1e-10;
 
-		public void InsertEdge(float u, float v)
+		public void InsertEdge(float from, float to, float value, bool u)
 		{
+			var fLines = u ? uLines : vLines;
+			fLines.Sort((x, y) => x.Value.CompareTo(y.Value));
+			var sLines = u ? vLines : uLines;
+			var sameVal = fLines.Where(x => Math.Abs(x.Value - value) < Eps).ToList();
 
+			var line = NewEdge(from, to, value, u);
+
+			if (sameVal.Count > 0)
+			{
+				var pre = sameVal.FirstOrDefault(x => Math.Abs(x.To - from) < Eps);
+				var post = sameVal.FirstOrDefault(x => Math.Abs(x.From - to) < Eps);
+
+				if (pre != null)
+				{
+					line = MergeEdges(pre, line, u);
+				}
+				if (post != null)
+				{
+					line = MergeEdges(line, post, u);
+				}
+
+			}
+
+			var prev = sLines.Where(x => x.Value < line.From - Eps).ToList();
+			var prevCount = prev.Count;
+			var inters = sLines.Skip(prevCount).Where(x => x.Value < line.To + Eps).ToList();
+
+			foreach (var inter in inters)
+			{
+				if (line.GetPoints().FirstOrDefault(x => Math.Abs(x.U - value) < Eps && Math.Abs(x.V - inter.Value) < Eps) == null)
+				{
+					var pt = sceneData.CreateRationalPoint();
+					var wrap = new PointWrapper(pt, u ? value : inter.Value, u ? inter.Value : value, this);
+					line.AddPoint(wrap);
+					inter.AddPoint(wrap);
+					tsplinePoints.Add(wrap);
+				}
+			}
+
+
+
+			int z = 0;
+
+
+		}
+
+
+		private Line NewEdge(float from, float to, float val, bool u)
+		{
+			return u ? NewUEdge(from, to, val) : NewVEdge(from, to, val);
+		}
+
+		private Line MergeEdges(Line one, Line two, bool u)
+		{
+			if (Math.Abs(one.Value - two.Value) > Eps)
+				throw new ArgumentException("Lines are not on the same value!");
+
+			var pre = one.From < two.From ? one : two;
+			var post = one.From < two.From ? two : one;
+
+			if (Math.Abs(pre.To - post.From) > Eps)
+				throw new ArgumentException("Lines ends does not meet!");
+
+			var line = NewEdge(pre.From, post.To, pre.Value, u);
+
+			foreach (var pointWrapper in pre.GetPoints().Concat(post.GetPoints()))
+			{
+				line.AddPoint(pointWrapper);
+			}
+			var list = u ? uLines : vLines;
+			list.Remove(one);
+			list.Remove(two);
+			return line;
+		}
+
+		private Line NewUEdge(float from, float to, float val)
+		{
+			var line = new Line(val, from, to, new VComparer());
+			uLines.Add(line);
+			return line;
+		}
+
+		private Line NewVEdge(float from, float to, float val)
+		{
+			var line = new Line(val, from, to, new UComparer());
+			vLines.Add(line);
+			return line;
+		}
+
+		private int LineComparator(Line one, Line two)
+		{
+			var val = one.Value.CompareTo(two.Value);
+			if (val == 0)
+				return one.From.CompareTo(two.From);
+			return val;
 		}
 
 		private void RecalculateKnots()
 		{
-			uLines.Sort((x, y) => x.Value.CompareTo(y.Value));
-			vLines.Sort((x, y) => x.Value.CompareTo(y.Value));
+			uLines.Sort(LineComparator);
+			vLines.Sort(LineComparator);
 
 			foreach (var tsplinePoint in tsplinePoints)
 			{
