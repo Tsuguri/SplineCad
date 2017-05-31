@@ -66,9 +66,9 @@ namespace SplineCAD.Objects
 		{
 			private readonly SortedSet<PointWrapper> points;
 
-			public float From { get; }
+			public float From { get; set; }
 
-			public float To { get; }
+			public float To { get; set; }
 
 			public float Value { get; }
 
@@ -250,6 +250,7 @@ namespace SplineCAD.Objects
 			var toest = vLines[4].Value;
 			InsertEdge(from, toest, val, false);
 			InsertEdge(from, toest, val, true);
+			InsertEdge(from + 0.05f, toer + 0.05f, val * 3, true);
 			//InsertEdge(toer, toest, val, true);
 			//InsertEdge(from, mid, val, false);
 
@@ -315,7 +316,13 @@ namespace SplineCAD.Objects
 
 			var prev = sLines.Where(x => x.Value < line.From - Eps).ToList();
 			var prevCount = prev.Count;
-			var inters = sLines.Skip(prevCount).Where(x => x.Value < line.To + Eps).ToList();
+			var inters = sLines.Skip(prevCount).Where(x => x.Value < line.To + Eps).OrderBy(x=>x.Value).ToList();
+
+			if (Math.Abs(inters.First().Value - line.From) > Eps)
+				line.From = inters.First().Value;
+			var last = inters.Last();
+			if (Math.Abs(last.Value - line.To) > Eps)
+				line.To = last.Value;
 
 			foreach (var inter in inters)
 			{
