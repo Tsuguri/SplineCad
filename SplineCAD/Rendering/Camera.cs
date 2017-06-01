@@ -63,11 +63,16 @@ namespace SplineCAD.Rendering
             
             pitch = 0.0f;
             yaw = 90.0f;
-            
-            viewMatrix = new Matrix4(new Vector4(right, -position.X),
-                                    new Vector4(up, -position.Y),
-                                    new Vector4(front, -position.Z),
+
+            Matrix4 ml = new Matrix4(new Vector4(right, 0),
+                                   new Vector4(up, 0),
+                                   new Vector4(front, 0),
+                                   new Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+            Matrix4 mr = new Matrix4(new Vector4(1, 0, 0, -position.X),
+                                    new Vector4(0, 1, 0, -position.Y),
+                                    new Vector4(0, 0, 1, -position.Z),
                                     new Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+            viewMatrix = ml * mr;
 
             projectionMatrix = Matrix4.CreatePerspectiveFieldOfView((float)(Math.PI / 4.0),
                 1.0f, 1.0f, 100.0f);
@@ -83,8 +88,8 @@ namespace SplineCAD.Rendering
 
         public void Rotate(float dx, float dy)
         {
-            yaw -= dx;
-            pitch += dy;
+            yaw -= dx * 0.5f;
+            pitch += dy * 0.5f;
 
             if (pitch > 89.0f) pitch = 89.0f;
             if (pitch < -89.0f) pitch = -89.0f;
@@ -106,15 +111,6 @@ namespace SplineCAD.Rendering
             viewMatrix.Row2.Xyz = front;
         }
 
-        public void Zoom(float d)
-        {
-            position.Z += d;
-
-            viewMatrix.Row0.W = -position.X;
-            viewMatrix.Row1.W = -position.Y;
-            viewMatrix.Row2.W = -position.Z;
-        }
-
         public void CreateProjection(float n, float f, float fov, float a)
         {
             projectionMatrix = Matrix4.CreatePerspectiveFieldOfView(DegreeToRadian(fov), a, n, f);
@@ -128,8 +124,6 @@ namespace SplineCAD.Rendering
             v = Vector4.Divide(v, v.W);
 
             Vector3 rayOrigin = position;
-            rayOrigin = Matrix3.CreateRotationX(DegreeToRadian(pitch)) * rayOrigin;
-            rayOrigin = Matrix3.CreateRotationY(DegreeToRadian(yaw - 90)) * rayOrigin;
             Vector3 rayDirection = (v.Xyz - rayOrigin).Normalized();
             Vector3 planeNormal = -front;
 
@@ -142,18 +136,27 @@ namespace SplineCAD.Rendering
         public void HandleKeyboardMovement(float speed)
         {
             if (Keyboard.IsKeyDown(Key.W))
-                position.Y += speed;
-            if (Keyboard.IsKeyDown(Key.A))
-                position.X -= speed;
+                position -= front * speed;
             if (Keyboard.IsKeyDown(Key.S))
-                position.Y -= speed;
+                position += front * speed;
+            if (Keyboard.IsKeyDown(Key.A))
+                position -= right * speed;
             if (Keyboard.IsKeyDown(Key.D))
-                position.X += speed;
+                position += right * speed;
+            if (Keyboard.IsKeyDown(Key.LeftShift))
+                position -= up * speed;
+            if (Keyboard.IsKeyDown(Key.Space))
+                position += up * speed;
 
-            viewMatrix = new Matrix4(new Vector4(right, -position.X),
-                                    new Vector4(up, -position.Y),
-                                    new Vector4(front, -position.Z),
+            Matrix4 ml = new Matrix4(new Vector4(right, 0),
+                                    new Vector4(up, 0),
+                                    new Vector4(front, 0),
                                     new Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+            Matrix4 mr = new Matrix4(new Vector4(1,0,0, -position.X),
+                                    new Vector4(0,1,0, -position.Y),
+                                    new Vector4(0,0,1, -position.Z),
+                                    new Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+            viewMatrix = ml * mr;
         }
         #endregion
     }
