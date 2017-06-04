@@ -12,12 +12,99 @@ namespace SplineCAD.Utilities
 {
     public static class FileManager
     {
-        public static void ExportToIGS(List<Model> models, string file)
-        {
-            if (models.Count != 1 || !(models[0] is NurbsSurface)) //saving just 1 nurbs, TODO rest
-                return;
-            NurbsSurface surf = models[0] as NurbsSurface;
 
+        public static bool ExportToIGS(List<Model> models, string file)
+        {
+            #region Local Functions
+
+            int GetParameterLinesCount(Model model)
+            {
+                switch (model)
+                {
+                    case NurbsSurface ns:
+                        return 4 + ns.UDivs.Count + 4 + ns.VDivs.Count + ns.Points.Length * 2 + 2;
+                    case BSplineSurface bs:
+                        return 7 + bs.Points.GetLength(0)  + 7 + bs.Points.GetLength(1) + 
+                            bs.Points.Length * 2 + 2;
+                    default:
+                        return -1;
+                }               
+            }
+
+            List<string> FillNurbsSurfaceParameters(NurbsSurface surf, ref int idx, int objIdx)
+            {
+                List<string> ret = new List<string>();
+
+                string degU = (surf.Points.GetLength(0) - 1).ToString() + ", ";
+                string degV = (surf.Points.GetLength(1) - 1).ToString() + ", ";
+
+                //add necessary parameters
+                ret.Add(("128, " + degU + degV + "3, 3, 0, 0, 0, 0, 0,").PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
+                    (++idx).ToString().PadLeft(7, '0'));
+
+                //add U-knot vector
+                ret.Add("0.0,".PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
+                    (++idx).ToString().PadLeft(7, '0'));
+                ret.Add("0.0,".PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
+                    (++idx).ToString().PadLeft(7, '0'));
+
+                for (int i = 0; i < surf.UDivs.Count; i++)
+                {
+                    ret.Add((surf.UDivs[i].Value.ToString() + ",").PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
+                    (++idx).ToString().PadLeft(7, '0'));
+                }
+
+                ret.Add("1.0,".PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
+                    (++idx).ToString().PadLeft(7, '0'));
+                ret.Add("1.0,".PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
+                    (++idx).ToString().PadLeft(7, '0'));
+
+                //Add V-knot vector
+                ret.Add("0.0,".PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
+                    (++idx).ToString().PadLeft(7, '0'));
+                ret.Add("0.0,".PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
+                    (++idx).ToString().PadLeft(7, '0'));
+
+                for (int i = 0; i < surf.VDivs.Count; i++)
+                {
+                    ret.Add((surf.VDivs[i].Value.ToString() + ",").PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
+                    (++idx).ToString().PadLeft(7, '0'));
+                }
+
+                ret.Add("1.0,".PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
+                    (++idx).ToString().PadLeft(7, '0'));
+                ret.Add("1.0,".PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
+                    (++idx).ToString().PadLeft(7, '0'));
+
+                //add weights
+                for (int i = 0; i < surf.Points.Length; i++)
+                {
+                    ret.Add("1.0,".PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
+                    (++idx).ToString().PadLeft(7, '0'));
+                }
+
+                //add points coords
+                for (int i = 0; i < surf.Points.GetLength(0); i++)
+                    for (int j = 0; j < surf.Points.GetLength(1); j++)
+                    {
+                        Vector4 p = surf.Points[j, i].Position;
+                        ret.Add((p.X.ToString() + ", " +
+                                      p.Y.ToString() + ", " +
+                                      p.Z.ToString() + ", ").PadRight(64, ' ') +
+                            objIdx.ToString().PadLeft(8) + "P" + (++idx).ToString().PadLeft(7, '0'));
+                    }
+
+                ret.Add("0.0, 1.0, 0.0, 1.0;".PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
+                    (++idx).ToString().PadLeft(7, '0'));
+                return ret;
+            }
+
+            List<string> FillBsplineSurfaceParameters(BSplineSurface surf, ref int idx, int objIdx)
+            {
+                List<string> ret = new List<string>();
+                return ret;
+            }
+            #endregion
 
             List<string> contents = new List<string>();
 
@@ -29,95 +116,62 @@ namespace SplineCAD.Utilities
             contents.Add("1.,2,2HMM,50,0.125,13H170526.090550,1E-008,499990.,10Hwlodarskip,,11,0, G      3");
             contents.Add("13H170526.090550;                                                       G      4");
 
-            int paramLinesCount = 1;
-            paramLinesCount += 4 + surf.UDivs.Count + 4 + surf.VDivs.Count;
-            paramLinesCount += surf.Points.Length * 2 + 1;
+            int objIndex = 1;
 
-            //Add rational b-spline type
-            contents.Add("128".PadLeft(8, ' ') + "1".PadLeft(8, ' ') +
-                         "0".PadLeft(8, ' ') + "1".PadLeft(8, ' ') +
-                         "0".PadLeft(8, ' ') + "0".PadLeft(8, ' ') +
-                         "0".PadLeft(8, ' ') + "".PadLeft(8, ' ') +
-                         "1".PadLeft(8, ' ') + "D" + "1".PadLeft(7, '0'));
+            int idxD = 0;
+            int idxP = 0;
 
-            contents.Add("128".PadLeft(8, ' ') + "1".PadLeft(8, ' ') +
-                         "0".PadLeft(8, ' ') +
-                         paramLinesCount.ToString().PadLeft(8, ' ') +
-                         "0".PadLeft(8, ' ') + "".PadLeft(8, ' ') +
-                         "".PadLeft(8, ' ') + "".PadLeft(8, ' ') +
-                         "".PadLeft(8, ' ') + "D" + "2".PadLeft(7, '0'));
-            int idx = 0;
-
-            string degU = (surf.Points.GetLength(0) - 1).ToString() + ", ";
-            string degV = (surf.Points.GetLength(1) - 1).ToString() + ", ";
-
-            //add necessary parameters
-            contents.Add(("128, " + degU + degV + "3, 3, 0, 0, 0, 0, 0,").PadRight(71, ' ') + "1P" +
-                (++idx).ToString().PadLeft(7, '0'));
-
-            //add U-knot vector
-            contents.Add("0.0,".PadRight(71, ' ') + "1P" +
-                (++idx).ToString().PadLeft(7, '0'));
-            contents.Add("0.0,".PadRight(71, ' ') + "1P" +
-                (++idx).ToString().PadLeft(7, '0'));
-
-            for(int i = 0; i < surf.UDivs.Count; i++)
+            List<int> surfacesParamLines = new List<int>();
+            List<List<string>> surfacesParameters = new List<List<string>>();
+            foreach(Model m in models)
             {
-                contents.Add((surf.UDivs[i].Value.ToString() + ",").PadRight(71, ' ') + "1P" +
-                (++idx).ToString().PadLeft(7, '0'));
-            }
+                if (m is TSplineSurface)
+                    return false;
 
-            contents.Add("1.0,".PadRight(71, ' ') + "1P" +
-                (++idx).ToString().PadLeft(7, '0'));
-            contents.Add("1.0,".PadRight(71, ' ') + "1P" +
-                (++idx).ToString().PadLeft(7, '0'));
+                int paramLines = GetParameterLinesCount(m);
+                surfacesParamLines.Add(paramLines);
 
-            //Add V-knot vector
-            contents.Add("0.0,".PadRight(71, ' ') + "1P" +
-                (++idx).ToString().PadLeft(7, '0'));
-            contents.Add("0.0,".PadRight(71, ' ') + "1P" +
-                (++idx).ToString().PadLeft(7, '0'));
+                //Add rational b-spline type
+                contents.Add("128".PadLeft(8, ' ') + "1".PadLeft(8, ' ') +
+                             "0".PadLeft(8, ' ') + "1".PadLeft(8, ' ') +
+                             "0".PadLeft(8, ' ') + "0".PadLeft(8, ' ') +
+                             "0".PadLeft(8, ' ') + "".PadLeft(8, ' ') +
+                             "1".PadLeft(8, ' ') + "D" + (++idxD).ToString().PadLeft(7, '0'));
 
-            for (int i = 0; i < surf.VDivs.Count; i++)
-            {
-                contents.Add((surf.VDivs[i].Value.ToString() + ",").PadRight(71, ' ') + "1P" +
-                (++idx).ToString().PadLeft(7, '0'));
-            }
-
-            contents.Add("1.0,".PadRight(71, ' ') + "1P" +
-                (++idx).ToString().PadLeft(7, '0'));
-            contents.Add("1.0,".PadRight(71, ' ') + "1P" +
-                (++idx).ToString().PadLeft(7, '0'));
-
-            //add weights
-            for (int i = 0; i < surf.Points.Length; i++)
-            {
-                contents.Add("1.0,".PadRight(71, ' ') + "1P" +
-                (++idx).ToString().PadLeft(7, '0'));
-            }
-
-            //add points coords
-            for (int i = 0; i < surf.Points.GetLength(0); i++)
-                for (int j = 0; j < surf.Points.GetLength(1); j++)
+                contents.Add("128".PadLeft(8, ' ') + "1".PadLeft(8, ' ') +
+                             "0".PadLeft(8, ' ') +
+                             paramLines.ToString().PadLeft(8, ' ') +
+                             "0".PadLeft(8, ' ') + "".PadLeft(8, ' ') +
+                             "".PadLeft(8, ' ') + "".PadLeft(8, ' ') +
+                             "".PadLeft(8, ' ') + "D" + (++idxD).ToString().PadLeft(7, '0'));
+                switch (m)
                 {
-                    Vector4 p = surf.Points[j, i].Position;
-                    contents.Add((p.X.ToString() + ", " +
-                                  p.Y.ToString() + ", " +
-                                  p.Z.ToString() + ", ").PadRight(71, ' ') +
-                        "1P" + (++idx).ToString().PadLeft(7, '0'));
+                    case NurbsSurface ns:
+                        surfacesParameters.Add(FillNurbsSurfaceParameters(ns, ref idxP, objIndex));
+                        break;
+                    case BSplineSurface bs:
+                        surfacesParameters.Add(FillBsplineSurfaceParameters(bs, ref idxP, objIndex));
+                        break;
                 }
 
-            contents.Add("0.0, 1.0, 0.0, 1.0;".PadRight(71, ' ') + "1P" +
-                (++idx).ToString().PadLeft(7, '0'));
+                objIndex += 2;
+            }
+
+            //append params of each surface
+            foreach(List<string> Params in surfacesParameters)
+            {
+                contents.AddRange(Params);
+            }
 
             //terminate
             contents.Add(("S" + "1".PadLeft(7, ' ') +
                          "G" + "0".PadLeft(7, ' ') +
                          "D" + "2".PadLeft(7, ' ') +
-                         "P" + paramLinesCount.ToString().PadLeft(7, ' ')).PadRight(72, ' ') +
+                         "P" + surfacesParamLines.Sum().ToString().PadLeft(7, ' ')).PadRight(72, ' ') +
                          "T" + "1".PadLeft(7, ' '));
 
             File.WriteAllLines(file, contents);
+            return true;
         }
 
     }

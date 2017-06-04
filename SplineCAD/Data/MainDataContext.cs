@@ -44,6 +44,10 @@ namespace SplineCAD.Data
 
 		private Camera camera;
 
+
+        //TODO remove
+        private float height = 0.0f;
+
 		#endregion
 
 		#region Properties
@@ -103,37 +107,39 @@ namespace SplineCAD.Data
 
 
 
-			var pt1 = vector3Points.CreatePoint();
-			pt1.Position = new Vector3(1.0f, 1.0f, 1.0f);
+			//var pt1 = vector3Points.CreatePoint();
+			//pt1.Position = new Vector3(1.0f, 1.0f, 1.0f);
 
-			var pt2 = vector3Points.CreatePoint();
-			pt2.Position = new Vector3(-1.0f, -1.0f, 1.0f);
+			//var pt2 = vector3Points.CreatePoint();
+			//pt2.Position = new Vector3(-1.0f, -1.0f, 1.0f);
 
-			var pt3 = vector3Points.CreatePoint();
-			pt3.Position = new Vector3(1.0f, -1.0f, 1.0f);
+			//var pt3 = vector3Points.CreatePoint();
+			//pt3.Position = new Vector3(1.0f, -1.0f, 1.0f);
 
-			var pt4 = vector3Points.CreatePoint();
-			pt4.Position = new Vector3(-1.0f, 1.0f, 1.0f);
+			//var pt4 = vector3Points.CreatePoint();
+			//pt4.Position = new Vector3(-1.0f, 1.0f, 1.0f);
 
-			var pt5 = vector3Points.CreatePoint();
-			pt5.Position = new Vector3(1.0f, 1.0f, -1.0f);
+			//var pt5 = vector3Points.CreatePoint();
+			//pt5.Position = new Vector3(1.0f, 1.0f, -1.0f);
 
-			var pt6 = vector3Points.CreatePoint();
-			pt6.Position = new Vector3(-1.0f, -1.0f, -1.0f);
+			//var pt6 = vector3Points.CreatePoint();
+			//pt6.Position = new Vector3(-1.0f, -1.0f, -1.0f);
 
-			var pt7 = vector3Points.CreatePoint();
-			pt7.Position = new Vector3(1.0f, -1.0f, -1.0f);
+			//var pt7 = vector3Points.CreatePoint();
+			//pt7.Position = new Vector3(1.0f, -1.0f, -1.0f);
 
-			var pt8 = vector3Points.CreatePoint();
-			pt8.Position = new Vector3(-1.0f, 1.0f, -1.0f);
+			//var pt8 = vector3Points.CreatePoint();
+			//pt8.Position = new Vector3(-1.0f, 1.0f, -1.0f);
 
 
 
 			camera = new Camera(new Vector3(0.0f, 0.0f, 5.0f));
 
-           // CreateNurbsMesh();
-			CreateTsplineMesh();
-		}
+            CreateNurbsMesh();
+            CreateNurbsMesh();
+            CreateNurbsMesh();
+            //CreateTsplineMesh();
+        }
 
 		private void InitializeShaders()
 		{
@@ -218,10 +224,11 @@ namespace SplineCAD.Data
 			{
 
 				points[i, j] = CreateRationalPoint();
-				points[i, j].Position = new Vector4(i, (float)Math.Sin(0.5 * i), j,1);
+				points[i, j].Position = new Vector4(i, (float)Math.Sin(0.5 * i) + height, j,1);
 			}
 			var bspline = new NurbsSurface(this, Shaders["NurbsShader"], Shaders["RationalLineShader"], points);
 			SceneObjects.Add(bspline);
+            height += 2.0f;
 		}
 
 		private void CreateTsplineMesh()
@@ -260,7 +267,10 @@ namespace SplineCAD.Data
             SaveFileDialog dialog = new SaveFileDialog();
             dialog.Filter = "IGES files (*.igs)|*.igs";
             dialog.ShowDialog();
-            FileManager.ExportToIGS(SceneObjects.ToList(), dialog.FileName);
+            if (!FileManager.ExportToIGS(SceneObjects.ToList(), dialog.FileName))
+                MessageBox.Show("Export failed.");
+            else MessageBox.Show("Export successful.");
+            
         }
 
         #endregion
@@ -277,13 +287,14 @@ namespace SplineCAD.Data
 
             MainCamera.HandleKeyboardMovement(0.15f);
 
-			var shader = Shaders["testShader"];
-			var mesh = Meshes["cubeMesh"];
-			var ptShader = Shaders["pointShader"];
-			shader.Activate();
-			mesh.Render();
+            //var shader = Shaders["testShader"];
+            //var mesh = Meshes["cubeMesh"];
+            //shader.Activate();
+            //mesh.Render();
 
-			ptShader.Activate();
+            var ptShader = Shaders["pointShader"];
+
+            ptShader.Activate();
 
 			vector3Points.Render(ptShader);
 			vector4Points.Render(ptShader);

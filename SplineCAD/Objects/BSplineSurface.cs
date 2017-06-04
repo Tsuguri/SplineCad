@@ -27,8 +27,10 @@ namespace SplineCAD.Objects
 
 		private bool divChanged = false;
 
+        public IPoint<Vector3>[,] Points { get => points; }
 
-		protected override void PatchDivChanged()
+
+        protected override void PatchDivChanged()
 		{
 			base.PatchDivChanged();
 			divChanged = true;
