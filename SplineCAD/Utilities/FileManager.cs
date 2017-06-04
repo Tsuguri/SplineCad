@@ -21,15 +21,13 @@ namespace SplineCAD.Utilities
 
             List<string> contents = new List<string>();
 
-            Func<string, int, string> addSpaces = (string str, int k) =>
-            {
-                for (int i = 0; i < k; i++)
-                    str += ' ';
-                return str;
-            };
+            contents.Add("SplineCAD conversion to IGES file. Shoop da woop!".PadRight(72, ' ') + "S0000001");
 
-            string start = "SplineCAD conversion to IGES file. Shoop da woop!";
-            contents.Add(addSpaces(start, 72 - start.Length) + "S0000001");
+            //Copy-pasta of SolidWorks global section
+            contents.Add("1H,,1H;,13HCzesc1.SLDPRT,40HC:/Users/wlodarskip/Downloads/Czesc1.IGS,   G      1");
+            contents.Add("15HSolidWorks 2014,15HSolidWorks 2014,32,308,15,308,15,13HCzesc1.SLDPRT,G      2");
+            contents.Add("1.,2,2HMM,50,0.125,13H170526.090550,1E-008,499990.,10Hwlodarskip,,11,0, G      3");
+            contents.Add("13H170526.090550;                                                       G      4");
 
             int paramLinesCount = 1;
             paramLinesCount += 4 + surf.UDivs.Count + 4 + surf.VDivs.Count;
