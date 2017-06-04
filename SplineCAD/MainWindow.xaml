@@ -7,7 +7,7 @@
         xmlns:SCUI="clr-namespace:SplineCAD.UIControls"
         mc:Ignorable="d"
         
-        Title="MainWindow" Height="720" Width="1280"
+        Title="SplineCAD" Height="720" Width="1280"
         Loaded="MainWindow_OnLoaded">
     <Grid>
         <Grid.RowDefinitions>

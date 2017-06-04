@@ -121,7 +121,6 @@ namespace SplineCAD.Utilities
             int idxD = 0;
             int idxP = 0;
 
-            List<int> surfacesParamLines = new List<int>();
             List<List<string>> surfacesParameters = new List<List<string>>();
             foreach(Model m in models)
             {
@@ -129,7 +128,6 @@ namespace SplineCAD.Utilities
                     return false;
 
                 int paramLines = GetParameterLinesCount(m);
-                surfacesParamLines.Add(paramLines);
 
                 //Add rational b-spline type
                 contents.Add("128".PadLeft(8, ' ') + "1".PadLeft(8, ' ') +
@@ -167,7 +165,7 @@ namespace SplineCAD.Utilities
             contents.Add(("S" + "1".PadLeft(7, ' ') +
                          "G" + "0".PadLeft(7, ' ') +
                          "D" + "2".PadLeft(7, ' ') +
-                         "P" + surfacesParamLines.Sum().ToString().PadLeft(7, ' ')).PadRight(72, ' ') +
+                         "P" + idxP.ToString().PadLeft(7, ' ')).PadRight(72, ' ') +
                          "T" + "1".PadLeft(7, ' '));
 
             File.WriteAllLines(file, contents);
