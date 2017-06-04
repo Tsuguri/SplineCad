@@ -24,7 +24,7 @@ namespace SplineCAD.Utilities
                     case NurbsSurface ns:
                         return 4 + ns.UDivs.Count + 4 + ns.VDivs.Count + ns.Points.Length * 2 + 2;
                     case BSplineSurface bs:
-                        return 7 + bs.Points.GetLength(0)  + 7 + bs.Points.GetLength(1) + 
+                        return 4 + bs.Points.GetLength(0)  + 4 + bs.Points.GetLength(1) + 
                             bs.Points.Length * 2 + 2;
                     default:
                         return -1;
@@ -77,11 +77,13 @@ namespace SplineCAD.Utilities
                     (++idx).ToString().PadLeft(7, '0'));
 
                 //add weights
-                for (int i = 0; i < surf.Points.Length; i++)
-                {
-                    ret.Add("1.0,".PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
-                    (++idx).ToString().PadLeft(7, '0'));
-                }
+                for (int i = 0; i < surf.Points.GetLength(0); i++)
+                    for (int j = 0; j < surf.Points.GetLength(1); j++)
+                    {
+                        ret.Add((surf.Points[j, i].Position.W.ToString() + ",").PadRight(64, ' ') +
+                        objIdx.ToString().PadLeft(8) + "P" +
+                        (++idx).ToString().PadLeft(7, '0'));
+                    }
 
                 //add points coords
                 for (int i = 0; i < surf.Points.GetLength(0); i++)
@@ -102,6 +104,53 @@ namespace SplineCAD.Utilities
             List<string> FillBsplineSurfaceParameters(BSplineSurface surf, ref int idx, int objIdx)
             {
                 List<string> ret = new List<string>();
+
+                string degU = (surf.Points.GetLength(0) - 1).ToString() + ", ";
+                string degV = (surf.Points.GetLength(1) - 1).ToString() + ", ";
+
+                int Udivs = 4 + surf.Points.GetLength(0);
+                int Vdivs = 4 + surf.Points.GetLength(1);
+
+                //add necessary parameters
+                ret.Add(("128, " + degU + degV + "3, 3, 0, 0, 0, 0, 0,").PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
+                    (++idx).ToString().PadLeft(7, '0'));
+
+                //add U-knot vector
+                for (int i = 0; i < Udivs; i++)
+                {
+                    ret.Add((i.ToString() + ",").PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
+                    (++idx).ToString().PadLeft(7, '0'));
+                }
+
+                for (int i = 0; i < Vdivs; i++)
+                {
+                    ret.Add((i.ToString() + ",").PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
+                    (++idx).ToString().PadLeft(7, '0'));
+                }
+
+
+                //add weights
+                for (int i = 0; i < surf.Points.GetLength(0); i++)
+                    for (int j = 0; j < surf.Points.GetLength(1); j++)
+                    {
+                        ret.Add("1.0,".PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
+                        (++idx).ToString().PadLeft(7, '0'));
+                    }
+
+                //add points coords
+                for (int i = 0; i < surf.Points.GetLength(0); i++)
+                    for (int j = 0; j < surf.Points.GetLength(1); j++)
+                    {
+                        Vector3 p = surf.Points[j, i].Position;
+                        ret.Add((p.X.ToString() + ", " +
+                                      p.Y.ToString() + ", " +
+                                      p.Z.ToString() + ", ").PadRight(64, ' ') +
+                            objIdx.ToString().PadLeft(8) + "P" + (++idx).ToString().PadLeft(7, '0'));
+                    }
+
+                ret.Add(("0.0, " + (Udivs - 1).ToString() + ", 0.0, " + (Vdivs - 1).ToString() +
+                    ";").PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
+                    (++idx).ToString().PadLeft(7, '0'));
                 return ret;
             }
             #endregion
