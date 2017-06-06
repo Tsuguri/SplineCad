@@ -22,6 +22,15 @@ uniform vec3 b31;
 uniform vec3 b32;
 uniform vec3 b33;
 
+uniform vec3 camPos;
+uniform vec3 lightPos;
+
+out vec3 vNormal;
+out vec3 vWorldPos;
+out vec3 vView;
+out vec3 vLightPos;
+
+
 float BSplineN0(float i, float t)
 {
 	return (t>=i -1 && t<i) ? 1.0 : 0.0;
@@ -33,7 +42,7 @@ float BSplineMix(float n, float i, float t, float N1, float N2)
 }
 
 
-vec4 EvaluateFunctions(float t)
+vec4 EvaluateBasis3(float t)
 {
 	float v0 = BSplineN0(-2,t);
 	float v1 = BSplineN0(-1,t);
@@ -64,38 +73,65 @@ vec4 EvaluateFunctions(float t)
 	return vec4(v0, v1, v2, v3);
 }
 
-vec3 EvaluateBspline(float u, float v)
+vec3 EvaluateBasis2(float t)
 {
-	vec4 uVal = EvaluateFunctions(u);
-	vec4 vVal = EvaluateFunctions(v);
+	float v0 = BSplineN0(-1,t);
+	float v1 = BSplineN0(0,t);
+	float v2 = BSplineN0(1,t);
+	float v3 = BSplineN0(2,t);
+	float v4 = BSplineN0(3,t);
 
-	vec3 result = vec3(0,0,0);
+	v0 = BSplineMix(1, -1, t, v0, v1);
+	v1 = BSplineMix(1, 0, t, v1, v2);
+	v2 = BSplineMix(1, 1, t, v2, v3);
+	v3 = BSplineMix(1, 2, t, v3, v4);
 
-	result += b00 * uVal.x * vVal.x;
-	result += b01 * uVal.y * vVal.x;
-	result += b02 * uVal.z * vVal.x;
-	result += b03 * uVal.w * vVal.x;
+	v0 = BSplineMix(2, -1, t, v0, v1);
+	v1 = BSplineMix(2, 0, t, v1, v2);
+	v2 = BSplineMix(2, 1, t, v2, v3);
 
-	result += b10 * uVal.x * vVal.y;
-	result += b11 * uVal.y * vVal.y;
-	result += b12 * uVal.z * vVal.y;
-	result += b13 * uVal.w * vVal.y;
+	return vec3(v0, v1, v2);
+}
 
-	result += b20 * uVal.x * vVal.z;
-	result += b21 * uVal.y * vVal.z;
-	result += b22 * uVal.z * vVal.z;
-	result += b23 * uVal.w * vVal.z;
+vec3 Evaluate(vec3 p0, vec3 p1, vec3 p2, vec3 p3, float t)
+{
+	vec4 basis = EvaluateBasis3(t);
 
-	result += b30 * uVal.x * vVal.w;
-	result += b31 * uVal.y * vVal.w;
-	result += b32 * uVal.z * vVal.w;
-	result += b33 * uVal.w * vVal.w;
+	return basis.x * p0 + basis.y * p1 + basis.z * p2 + basis.w * p3;
+}
 
-	return result;
+vec3 EvaluateD(vec3 p0, vec3 p1, vec3 p2, vec3 p3, float t)
+{
+	vec3 d0 = p1 - p0;
+	vec3 d1 = p2 - p1;
+	vec3 d2 = p3 - p2;
+
+	vec3 basis = EvaluateBasis2(t);
+
+	return basis.x * d0 + basis.y * d1 + basis.z * d2;
 }
 
 void main()
 {
-	vec3 pos = EvaluateBspline(position.x,position.y);
+	vec3 row0 = Evaluate(b00, b01, b02, b03, position.x);
+	vec3 row1 = Evaluate(b10, b11, b12, b13, position.x);
+	vec3 row2 = Evaluate(b20, b21, b22, b23, position.x);
+	vec3 row3 = Evaluate(b30, b31, b32, b33, position.x);
+
+	vec3 col0 = Evaluate(b00, b10, b20, b30, position.y);
+	vec3 col1 = Evaluate(b01, b11, b21, b31, position.y);
+	vec3 col2 = Evaluate(b02, b12, b22, b32, position.y);
+	vec3 col3 = Evaluate(b03, b13, b23, b33, position.y);
+
+	vec3 pos = Evaluate(row0, row1, row2, row3, position.y);
+
+	vec3 posDU = EvaluateD(row0, row1, row2, row3, position.y);
+	vec3 posDV = EvaluateD(col0, col1, col2, col3, position.x);
+
+	vNormal = normalize(cross(posDU - pos, posDV - pos));
+	vWorldPos = pos;
+	vView = normalize(camPos - pos);
+	vLightPos = lightPos;
+
     gl_Position = vec4(pos.x, pos.y, pos.z, 1.0) * viewMatrix * projMatrix;
 }

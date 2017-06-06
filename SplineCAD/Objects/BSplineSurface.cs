@@ -91,7 +91,11 @@ namespace SplineCAD.Objects
 			var b32 = surfaceShader.GetUniformLocation("b32");
 			var b33 = surfaceShader.GetUniformLocation("b33");
 
+            var camPos = surfaceShader.GetUniformLocation("camPos");
+            var lightPos = surfaceShader.GetUniformLocation("lightPos");
 
+            surfaceShader.Bind(lightPos, sceneData.LightPos);
+            surfaceShader.Bind(camPos, sceneData.MainCamera.Position);
 
 			//draw every patch
 			for (int i = 0; i < patchesX; i++)

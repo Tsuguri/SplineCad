@@ -44,7 +44,7 @@ namespace SplineCAD.Data
 
 		private Camera camera;
 
-
+        private Vector3 lightpos = new Vector3(0.0f, 4.0f, 1.0f);
         //TODO remove
         private float height = 0.0f;
 
@@ -86,6 +86,8 @@ namespace SplineCAD.Data
 		}
 
 		public Camera MainCamera => camera;
+
+        public Vector3 LightPos => lightpos;
 
         public Vector3PointCollection Vector3Points => vector3Points;
         public Vector4PointCollection Vector4Points => vector4Points;
@@ -135,13 +137,13 @@ namespace SplineCAD.Data
 
 			camera = new Camera(new Vector3(0.0f, 0.0f, 5.0f));
 
-            CreateNurbsMesh();
+            //CreateNurbsMesh();
             height += 2.0f;
 
             CreateBSplineMesh();
             height += 2.0f;
 
-            CreateNurbsMesh();
+            //CreateNurbsMesh();
             //CreateTsplineMesh();
         }
 
