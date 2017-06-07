@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -95,10 +96,10 @@ namespace SplineCAD.Objects
 
 		}
 
-        #endregion
+		#endregion
 
 
-        private static int count = 0;
+		private static int count = 0;
 
 		private List<PointWrapper> tsplinePoints;
 
@@ -125,8 +126,6 @@ namespace SplineCAD.Objects
 
 		private bool divChanged;
 		private bool pointsChanged;
-
-		private int i = 0;
 
 		#region EdgesInsertionUI
 
@@ -205,7 +204,7 @@ namespace SplineCAD.Objects
 			this.surfaceShader = surfaceShader;
 			this.polygonShader = polygonShader;
 
-            this.Name = "T-Spline " + (++count).ToString(); 
+			this.Name = "T-Spline " + (++count).ToString();
 
 			var ptsX = controlPoints.GetLength(0);
 			var ptsY = controlPoints.GetLength(1);
@@ -272,8 +271,6 @@ namespace SplineCAD.Objects
 
 		private Vector4 GetPointKnots(PointWrapper point, bool uKnots)
 		{
-			if (uKnots)
-				i++;
 			var l = uKnots ? uLines : vLines;
 			var pos = uKnots ? point.U : point.V;
 			var second = uKnots ? point.V : point.U;
@@ -381,7 +378,7 @@ namespace SplineCAD.Objects
 
 			var prev = sLines.Where(x => x.Value < line.From - Eps).ToList();
 			var prevCount = prev.Count;
-			var inters = sLines.Skip(prevCount).Where(x => x.Value < line.To + Eps).OrderBy(x => x.Value).ToList();
+			var inters = sLines.Skip(prevCount).Where(x => x.Value < line.To + Eps && line.Value < x.To + Eps && line.Value > x.From - Eps).OrderBy(x => x.Value).ToList();
 
 			if (Math.Abs(inters.First().Value - line.From) > Eps)
 				line.From = inters.First().Value;
@@ -519,15 +516,15 @@ namespace SplineCAD.Objects
 
 			surfaceShader.Activate();
 
-            var camPos = surfaceShader.GetUniformLocation("camPos");
-            var lightPos = surfaceShader.GetUniformLocation("lightPos");
-            var surfColor = surfaceShader.GetUniformLocation("surfColor");
+			var camPos = surfaceShader.GetUniformLocation("camPos");
+			var lightPos = surfaceShader.GetUniformLocation("lightPos");
+			var surfColor = surfaceShader.GetUniformLocation("surfColor");
 
-            surfaceShader.Bind(lightPos, sceneData.LightPos);
-            surfaceShader.Bind(camPos, sceneData.MainCamera.Position);
-            surfaceShader.Bind(surfColor, (new Vector3(SurfaceColor.R, SurfaceColor.G, SurfaceColor.B)).Normalized());
+			surfaceShader.Bind(lightPos, sceneData.LightPos);
+			surfaceShader.Bind(camPos, sceneData.MainCamera.Position);
+			surfaceShader.Bind(surfColor, (new Vector3(SurfaceColor.R, SurfaceColor.G, SurfaceColor.B)).Normalized());
 
-            for (var i = 0; i < tsplinePoints.Count; i++)
+			for (var i = 0; i < tsplinePoints.Count; i++)
 			{
 				var tsplinePoint = tsplinePoints[i];
 				var loc = $"functions[{i}].";
@@ -559,6 +556,100 @@ namespace SplineCAD.Objects
 			var size = surfaceShader.GetUniformLocation("size");
 			surfaceShader.Bind(size, new Vector2(1, 1));
 			surfaceMesh.Render();
+		}
+
+		public NurbsSurface ConvertToNurbs(Shader surfaceShader, Shader polygonShader)
+		{
+			var vDivs = vLines.Select(x => x.Value).Distinct().ToList();
+			var uDivs = uLines.Select(x => x.Value).Distinct().ToList();
+
+			var vFilled = new List<int>();
+			foreach (Line t in vLines)
+			{
+				if (Math.Abs(t.From) < Eps && Math.Abs(t.To - 1) < Eps)
+				{
+					vFilled.Add(vDivs.IndexOf(t.Value));
+				}
+			}
+
+			IPoint<Vector4>[,] pts = new IPoint<Vector4>[uDivs.Count, vDivs.Count];
+
+			foreach (var tsplinePoint in tsplinePoints)
+			{
+				var pt = sceneData.CreateRationalPoint(tsplinePoint.Position);
+				var i = uDivs.IndexOf(tsplinePoint.U);
+				var j = vDivs.IndexOf(tsplinePoint.V);
+				pts[i, j] = pt;
+			}
+			foreach (var vLine in vFilled)
+			{
+				int lastFilled = 0;
+				int nextFilled = 0;
+				for (int i = 0; i < uDivs.Count; i++)
+				{
+					if (pts[i, vLine] == null)
+					{
+						if (nextFilled < i)
+						{
+							nextFilled = i;
+							do
+							{
+								nextFilled++;
+							} while (pts[nextFilled, vLine] == null);
+						}
+
+						var prev = pts[lastFilled, vLine];
+						var next = pts[nextFilled, vLine];
+						var prevVal = uDivs[lastFilled];
+						var nextVal = uDivs[nextFilled];
+						var val = uDivs[i];
+						var t = (val - prevVal) / (nextVal - prevVal);
+						var pos = prev.Position * (1 - t) + next.Position * t;
+						pts[i, vLine] = sceneData.CreateRationalPoint(pos);
+					}
+					else
+					{
+						lastFilled = i;
+					}
+				}
+			}
+
+			for (int i = 0; i < uDivs.Count; i++)
+			{
+				int lastFilled = 0;
+				int nextFilled = 0;
+				for (int j = 0; j < vDivs.Count; j++)
+				{
+					if (pts[i, j] == null)
+					{
+						if (nextFilled < j)
+						{
+							nextFilled = j;
+							do
+							{
+								nextFilled++;
+							} while (pts[i, nextFilled] == null);
+						}
+
+						var prev = pts[i,lastFilled];
+						var next = pts[i,nextFilled];
+						var prevVal = vDivs[lastFilled];
+						var nextVal = vDivs[nextFilled];
+						float val = vDivs[j];
+						var t = (val - prevVal) / (nextVal - prevVal);
+						var pos = prev.Position * (1 - t) + next.Position * t;
+						pts[i,j] = sceneData.CreateRationalPoint(pos);
+					}
+					else
+					{
+						lastFilled = j;
+					}
+				}
+			}
+
+			var p = new NurbsSurface(sceneData, surfaceShader, polygonShader, pts, SurfaceColor);
+			sceneData.AddModel(p);
+			return p;
 		}
 	}
 }

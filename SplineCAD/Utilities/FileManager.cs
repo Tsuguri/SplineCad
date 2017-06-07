@@ -7,13 +7,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using OpenTK;
+using SplineCAD.Data;
 
 namespace SplineCAD.Utilities
 {
     public static class FileManager
     {
 
-        public static bool ExportToIGS(List<Model> models, string file)
+        public static bool ExportToIGS(List<Model> models, string file, MainDataContext sceneDataContext)
         {
             #region Local Functions
 
@@ -173,10 +174,12 @@ namespace SplineCAD.Utilities
             List<List<string>> surfacesParameters = new List<List<string>>();
             foreach(Model m in models)
             {
-                if (m is TSplineSurface)
-                    return false;
+	            var z = m;
+	            if (z is TSplineSurface)
+		            z = (m as TSplineSurface).ConvertToNurbs(sceneDataContext.Shaders["NurbsShader"],
+			            sceneDataContext.Shaders["RationalLineShader"]);
 
-                int paramLines = GetParameterLinesCount(m);
+                int paramLines = GetParameterLinesCount(z);
 
                 //Add rational b-spline type
                 contents.Add("128".PadLeft(8, ' ') + "1".PadLeft(8, ' ') +
@@ -191,7 +194,7 @@ namespace SplineCAD.Utilities
                              "0".PadLeft(8, ' ') + "".PadLeft(8, ' ') +
                              "".PadLeft(8, ' ') + "".PadLeft(8, ' ') +
                              "".PadLeft(8, ' ') + "D" + (++idxD).ToString().PadLeft(7, '0'));
-                switch (m)
+                switch (z)
                 {
                     case NurbsSurface ns:
                         surfacesParameters.Add(FillNurbsSurfaceParameters(ns, ref idxP, objIndex));

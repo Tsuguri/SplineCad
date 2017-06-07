@@ -48,6 +48,14 @@ namespace SplineCAD.Objects
 			return p;
 		}
 
+		public IPoint<T> CreatePoint(T position)
+		{
+			var p = new Point<T>();
+			p.Position = position;
+			points.Add(p);
+			return p;
+		}
+
 		public void RemovePoint(IPoint<T> point)
 		{
 			var p = point as Point<T>;

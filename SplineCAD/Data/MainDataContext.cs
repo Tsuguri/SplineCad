@@ -51,7 +51,7 @@ namespace SplineCAD.Data
 
 		#region Properties
 
-		private Dictionary<string, Shader> Shaders { get; set; }
+		public Dictionary<string, Shader> Shaders { get; private set; }
 
 		private Dictionary<string, IMesh> Meshes { get; set; }
 
@@ -166,6 +166,11 @@ namespace SplineCAD.Data
 			return vector4Points.CreatePoint();
 		}
 
+		public IPoint<Vector4> CreateRationalPoint(Vector4 pos)
+		{
+			return vector4Points.CreatePoint(pos);
+		}
+
 		private void CreateBSplineMesh()
 		{
             SurfacePopup popup = new SurfacePopup();
@@ -251,13 +256,18 @@ namespace SplineCAD.Data
                     points[i, j].Position = new Vector4(position.X + u, position.Y, position.Z + v, 1);
                 }
             }
-			var bspline = new TSplineSurface(this, Shaders["TsplineShader"], Shaders["RationalLineShader"], points);
-			SceneObjects.Add(bspline);
+			var tspline = new TSplineSurface(this, Shaders["TsplineShader"], Shaders["RationalLineShader"], points);
+			SceneObjects.Add(tspline);
 		}
 
 		#endregion
 
 		#region ObjectManipulation
+
+		public void AddModel(Model model)
+		{
+			sceneObjects.Add(model);
+		}
 
 		private void RemoveSelected()
 		{
@@ -276,8 +286,8 @@ namespace SplineCAD.Data
         {
             SaveFileDialog dialog = new SaveFileDialog();
             dialog.Filter = "IGES files (*.igs)|*.igs";
-            dialog.ShowDialog();
-            if (!FileManager.ExportToIGS(SceneObjects.ToList(), dialog.FileName))
+	        if (dialog.ShowDialog() == DialogResult.Cancel) return;
+            if (!FileManager.ExportToIGS(SceneObjects.ToList(), dialog.FileName,this))
                 MessageBox.Show("Export failed.");
             else MessageBox.Show("Export successful.");
             
