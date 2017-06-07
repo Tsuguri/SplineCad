@@ -670,8 +670,8 @@ namespace SplineCAD.Objects
 			pts[0, vDivs.Count + 1] = pts[1, vDivs.Count];
 
 
-			uDivs = new List<float>{-0.001f}.Concat(uDivs).Concat(new List<float>{1.001f}).ToList();
-			vDivs = new List<float>{-0.001f}.Concat(vDivs).Concat(new List<float>{1.001f}).ToList();
+			uDivs = new List<float> { 0.0f }.Concat(uDivs.Select(x => x + 0.001f)).Concat(new List<float> { 1.002f }).Select(x => x / 1.002f).ToList();
+			vDivs = new List<float> { 0.0f }.Concat(vDivs.Select(x => x + 0.001f)).Concat(new List<float> { 1.002f }).Select(x => x / 1.002f).ToList();
 
 			var p = new NurbsSurface(sceneData, surfaceShader, polygonShader, pts, SurfaceColor, uDivs, vDivs);
 			sceneData.AddModel(p);
