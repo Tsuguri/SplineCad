@@ -38,11 +38,9 @@ uniform float tv5;
 uniform float tv6;
 uniform float tv7;
 
-uniform vec3 camPos;
 
 out vec3 vNormal;
 out vec3 vWorldPos;
-out vec3 vView;
 
 float BSplineN0(float from, float to, float t)
 {
@@ -221,9 +219,8 @@ void main()
 
 	vec3 pos = pos4.xyz / pos4.w;
 
-	vNormal = normalize(cross(posDU - pos, posDV - pos));
+	vNormal = normalize(cross(posDV, posDU));
 	vWorldPos = pos;
-	vView = normalize(camPos - pos);
 
     gl_Position = vec4(pos.x, pos.y, pos.z, 1.0) * viewMatrix * projMatrix;
 }

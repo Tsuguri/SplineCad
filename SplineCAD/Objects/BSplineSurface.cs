@@ -7,11 +7,14 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using SplineCAD.Data;
 using SplineCAD.Rendering;
+using System.Windows.Media;
 
 namespace SplineCAD.Objects
 {
 	public class BSplineSurface : Surface
 	{
+        private static int count = 0;
+
 		private IPoint<Vector3>[,] points;
 
 		private MainDataContext sceneData;
@@ -36,15 +39,19 @@ namespace SplineCAD.Objects
 			divChanged = true;
 		}
 
-		public BSplineSurface(MainDataContext data, Shader surfaceShader, Shader polygonShader, IPoint<Vector3>[,] controlPoints)
+		public BSplineSurface(MainDataContext data, Shader surfaceShader, Shader polygonShader, IPoint<Vector3>[,] controlPoints, Color clr)
 		{
 			this.sceneData = data;
 			this.surfaceShader = surfaceShader;
 			this.polygonShader = polygonShader;
-			this.points = controlPoints;
+
+            this.Name = "B-Spline " + (++count).ToString();
+
+            this.points = controlPoints;
 			patchesX = controlPoints.GetLength(0) - 3;
 			patchesY = controlPoints.GetLength(1) - 3;
-
+            
+            SurfaceColor = clr;
 			mesh = new Vector3RectangesPolygonMesh(points);
 			surfaceMesh = new SurfaceMesh(10, 10);
 

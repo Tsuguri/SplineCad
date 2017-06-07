@@ -8,14 +8,12 @@
              d:DesignHeight="20" d:DesignWidth="400">
     <Menu>
         <MenuItem Header="File">
-            <MenuItem Header="Nothing here" />
-            <MenuItem Header="Here either" />
+            <MenuItem Header="Export to IGS" Command="{Binding ExportSceneCommand}"/>
         </MenuItem>
         <MenuItem Header="Splines">
             <MenuItem Header="Add B-Spline" Command="{Binding CreateBsplineCommand}" />
             <MenuItem Header="Add NURBS" Command="{Binding CreateNurbsCommand}" />
             <MenuItem Header="Add T-Spline" Command="{Binding CreateTsplineCommand}" />
-            <MenuItem Header="Gidda man a cookie" />
         </MenuItem>
     </Menu>
 </UserControl>

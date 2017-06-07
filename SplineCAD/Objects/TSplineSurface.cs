@@ -95,9 +95,10 @@ namespace SplineCAD.Objects
 
 		}
 
-		#endregion
+        #endregion
 
 
+        private static int count = 0;
 
 		private List<PointWrapper> tsplinePoints;
 
@@ -203,6 +204,8 @@ namespace SplineCAD.Objects
 			this.sceneData = data;
 			this.surfaceShader = surfaceShader;
 			this.polygonShader = polygonShader;
+
+            this.Name = "T-Spline " + (++count).ToString(); 
 
 			var ptsX = controlPoints.GetLength(0);
 			var ptsY = controlPoints.GetLength(1);
@@ -516,7 +519,15 @@ namespace SplineCAD.Objects
 
 			surfaceShader.Activate();
 
-			for (var i = 0; i < tsplinePoints.Count; i++)
+            var camPos = surfaceShader.GetUniformLocation("camPos");
+            var lightPos = surfaceShader.GetUniformLocation("lightPos");
+            var surfColor = surfaceShader.GetUniformLocation("surfColor");
+
+            surfaceShader.Bind(lightPos, sceneData.LightPos);
+            surfaceShader.Bind(camPos, sceneData.MainCamera.Position);
+            surfaceShader.Bind(surfColor, (new Vector3(SurfaceColor.R, SurfaceColor.G, SurfaceColor.B)).Normalized());
+
+            for (var i = 0; i < tsplinePoints.Count; i++)
 			{
 				var tsplinePoint = tsplinePoints[i];
 				var loc = $"functions[{i}].";
