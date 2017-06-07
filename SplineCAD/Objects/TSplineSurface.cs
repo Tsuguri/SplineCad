@@ -206,7 +206,7 @@ namespace SplineCAD.Objects
 			this.polygonShader = polygonShader;
 
 			this.Name = "T-Spline " + (++count).ToString();
-            SurfaceColor = clr;
+			SurfaceColor = clr;
 
 			var ptsX = controlPoints.GetLength(0);
 			var ptsY = controlPoints.GetLength(1);
@@ -489,12 +489,12 @@ namespace SplineCAD.Objects
 
 		public override void CleanUp()
 		{
-            foreach (var p in tsplinePoints)
-            {
-                sceneData.Vector4Points.RemovePoint(p.Point);
-            }
+			foreach (var p in tsplinePoints)
+			{
+				sceneData.Vector4Points.RemovePoint(p.Point);
+			}
 
-            selfMesh.Dispose();
+			selfMesh.Dispose();
 			surfaceMesh.Dispose();
 		}
 
@@ -638,14 +638,14 @@ namespace SplineCAD.Objects
 							} while (pts[i, nextFilled] == null);
 						}
 
-						var prev = pts[i,lastFilled];
-						var next = pts[i,nextFilled];
+						var prev = pts[i, lastFilled];
+						var next = pts[i, nextFilled];
 						var prevVal = vDivs[lastFilled];
 						var nextVal = vDivs[nextFilled];
 						float val = vDivs[j];
 						var t = (val - prevVal) / (nextVal - prevVal);
 						var pos = prev.Position * (1 - t) + next.Position * t;
-						pts[i,j] = sceneData.CreateRationalPoint(pos);
+						pts[i, j] = sceneData.CreateRationalPoint(pos);
 					}
 					else
 					{
@@ -654,7 +654,7 @@ namespace SplineCAD.Objects
 				}
 			}
 
-			var p = new NurbsSurface(sceneData, surfaceShader, polygonShader, pts, SurfaceColor);
+			var p = new NurbsSurface(sceneData, surfaceShader, polygonShader, pts, SurfaceColor, uDivs, vDivs);
 			sceneData.AddModel(p);
 			return p;
 		}
