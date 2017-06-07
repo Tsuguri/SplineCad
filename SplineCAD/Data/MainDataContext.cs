@@ -168,8 +168,6 @@ namespace SplineCAD.Data
 
 		private void CreateBSplineMesh()
 		{
-			var points = new IPoint<Vector3>[4 + 3, 4 + 3];
-
             SurfacePopup popup = new SurfacePopup();
             popup.ShowDialog();
             if (popup.cancelled)
@@ -179,13 +177,16 @@ namespace SplineCAD.Data
             Color clr = (Color)popup.clrPicker.SelectedColor;
             float width = (float)popup.UD_width.Value;
             float height = (float)popup.UD_height.Value;
+            int lenU = (int)popup.UD_patchesU.Value + 3;
+            int lenV = (int)popup.UD_patchesV.Value + 3;
 
-            for (int i = 0; i < 4 + 3; i++)
+            var points = new IPoint<Vector3>[lenU, lenV];
+            for (int i = 0; i < lenU; i++)
             {
-                float u = -width / 2 + (i*width) / 7;
-                for (int j = 0; j < 4 + 3; j++)
+                float u = -width / 2 + (i*width) / lenU;
+                for (int j = 0; j < lenV; j++)
                 {
-                    float v = -height / 2 + (j * height) / 7;
+                    float v = -height / 2 + (j * height) / lenV;
                     points[i, j] = CreatePoint();
                     points[i, j].Position = new Vector3(position.X + u, position.Y, position.Z + v);
                 }
@@ -197,8 +198,6 @@ namespace SplineCAD.Data
 
 		private void CreateNurbsMesh()
 		{
-			var points = new IPoint<Vector4>[4 + 3, 4 + 3];
-
             SurfacePopup popup = new SurfacePopup();
             popup.ShowDialog();
             if (popup.cancelled)
@@ -208,13 +207,16 @@ namespace SplineCAD.Data
             Color clr = (Color)popup.clrPicker.SelectedColor;
             float width = (float)popup.UD_width.Value;
             float height = (float)popup.UD_height.Value;
+            int lenU = (int)popup.UD_patchesU.Value + 3;
+            int lenV = (int)popup.UD_patchesV.Value + 3;
 
-            for (int i = 0; i < 4 + 3; i++)
+            var points = new IPoint<Vector4>[lenU, lenV];
+            for (int i = 0; i < lenU; i++)
             {
-                float u = -width / 2 + (i * width) / 7;
-                for (int j = 0; j < 4 + 3; j++)
+                float u = -width / 2 + (i * width) / lenU;
+                for (int j = 0; j < lenV; j++)
                 {
-                    float v = -height / 2 + (j * height) / 7;
+                    float v = -height / 2 + (j * height) / lenV;
                     points[i, j] = CreateRationalPoint();
                     points[i, j].Position = new Vector4(position.X + u, position.Y, position.Z + v, 1);
                 }
@@ -233,16 +235,17 @@ namespace SplineCAD.Data
             Vector3 position = new Vector3((float)popup.UD_posX.Value, (float)popup.UD_posY.Value, (float)popup.UD_posZ.Value);
             Color clr = (Color)popup.clrPicker.SelectedColor;
             float width = (float)popup.UD_width.Value;
-            float height = (float)popup.UD_height.Value;
+            float height = (float)popup.UD_height.Value;        
+            int lenU = (int)popup.UD_patchesU.Value + 3;
+            int lenV = (int)popup.UD_patchesV.Value + 3;
 
-            var points = new IPoint<Vector4>[4 + 3, 4 + 3];
-
-            for (int i = 0; i < 4 + 3; i++)
+            var points = new IPoint<Vector4>[lenU, lenV];
+            for (int i = 0; i < lenU; i++)
             {
-                float u = -width / 2 + (i * width) / 7;
-                for (int j = 0; j < 4 + 3; j++)
+                float u = -width / 2 + (i * width) / lenU;
+                for (int j = 0; j < lenV; j++)
                 {
-                    float v = -height / 2 + (j * height) / 7;
+                    float v = -height / 2 + (j * height) / lenV;
 
                     points[i, j] = CreateRationalPoint();
                     points[i, j].Position = new Vector4(position.X + u, position.Y, position.Z + v, 1);
