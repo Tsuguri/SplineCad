@@ -95,9 +95,10 @@ namespace SplineCAD.Objects
 
 		}
 
-		#endregion
+        #endregion
 
 
+        private static int count = 0;
 
 		private List<PointWrapper> tsplinePoints;
 
@@ -203,6 +204,8 @@ namespace SplineCAD.Objects
 			this.sceneData = data;
 			this.surfaceShader = surfaceShader;
 			this.polygonShader = polygonShader;
+
+            this.Name = "T-Spline " + (++count).ToString(); 
 
 			var ptsX = controlPoints.GetLength(0);
 			var ptsY = controlPoints.GetLength(1);

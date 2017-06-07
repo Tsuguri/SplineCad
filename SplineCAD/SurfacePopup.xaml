@@ -1,0 +1,42 @@
+﻿<Window x:Class="SplineCAD.SurfacePopup"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:local="clr-namespace:SplineCAD"
+        mc:Ignorable="d"
+        Title="Surface Creation" Height="120" Width="250" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <Label x:Name="posLabel" VerticalAlignment="Center" HorizontalAlignment="Left" Content="Position:"/>
+
+        <xctk:DoubleUpDown Grid.Column="1" Increment="0.5" x:Name="UD_posX" VerticalAlignment="Center" Value="0"/>
+        <xctk:DoubleUpDown Grid.Column="2" Increment="0.5" x:Name="UD_posY" VerticalAlignment="Center" Value="0"/>
+        <xctk:DoubleUpDown Grid.Column="3" Increment="0.5" x:Name="UD_posZ" VerticalAlignment="Center" Value="0"/>
+
+        <Label x:Name="widthLabel" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" Content="Width:"/>
+        <Label x:Name="heightLabel" Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Left" Content="Height:"/>
+        <xctk:DoubleUpDown Grid.Row="1" Grid.Column="1" Increment="0.5" x:Name="UD_width" Minimum="1" VerticalAlignment="Center" Value="5"/>
+        <xctk:DoubleUpDown Grid.Row="1" Grid.Column="3" Increment="0.5" x:Name="UD_height" Minimum="1" VerticalAlignment="Center" Value="5"/>
+
+
+        <Label x:Name="colorLabel" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Left" Content="Colour:"/>
+        <xctk:ColorPicker Name="clrPicker" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" SelectedColor="Turquoise"></xctk:ColorPicker>
+
+        <Button Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Click="Button_Click" >Create</Button>
+    </Grid>
+</Window>

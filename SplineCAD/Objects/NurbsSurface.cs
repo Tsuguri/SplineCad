@@ -9,11 +9,14 @@ using OpenTK.Graphics.OpenGL;
 using SplineCAD.Data;
 using SplineCAD.Rendering;
 using SplineCAD.Utilities;
+using System.Windows.Media;
 
 namespace SplineCAD.Objects
 {
 	public class NurbsSurface : Surface
 	{
+        private static int count = 0;
+
 		private IPoint<Vector4>[,] points;
 
 		private MainDataContext sceneData;
@@ -47,19 +50,21 @@ namespace SplineCAD.Objects
 			divChanged = true;
 		}
 
-		public NurbsSurface(MainDataContext data, Shader surfaceShader, Shader polygonShader, IPoint<Vector4>[,] controlPoints)
+		public NurbsSurface(MainDataContext data, Shader surfaceShader, Shader polygonShader, IPoint<Vector4>[,] controlPoints, Color clr)
 		{
 			this.sceneData = data;
 			this.surfaceShader = surfaceShader;
 			this.polygonShader = polygonShader;
 			this.points = controlPoints;
+            this.Name = "NURBS " + (++count).ToString();
 
-			patchesX = controlPoints.GetLength(0) - 3;
+            patchesX = controlPoints.GetLength(0) - 3;
 			patchesY = controlPoints.GetLength(1) - 3;
 			pointsX = patchesX + 3;
 			pointsY = patchesY + 3;
+            SurfaceColor = clr;
 
-			mesh = new Vector4RectangesPolygonMesh(points);
+            mesh = new Vector4RectangesPolygonMesh(points);
 			surfaceMesh = new SurfaceMesh((uint)PatchDivX, (uint)PatchDivY);
 
 			uDivs = new ObservableCollection<FloatWrapper>();

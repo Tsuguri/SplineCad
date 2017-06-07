@@ -36,7 +36,7 @@ namespace SplineCAD.Objects
 				VisibilityChanged();
 			}
 		}
-		private int patchDivX = 10;
+		private int patchDivX = 25;
 
 		public int PatchDivX
 		{
@@ -51,7 +51,7 @@ namespace SplineCAD.Objects
 			}
 		}
 
-		private int patchDivY = 10;
+		private int patchDivY = 25;
 
 		public int PatchDivY
 		{

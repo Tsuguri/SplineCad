@@ -10,6 +10,7 @@ using SplineCAD.Objects;
 using SplineCAD.Rendering;
 using SplineCAD.Utilities;
 using System.Windows.Forms;
+using System.Windows.Media;
 
 namespace SplineCAD.Data
 {
@@ -44,9 +45,7 @@ namespace SplineCAD.Data
 
 		private Camera camera;
 
-        private Vector3 lightpos = new Vector3(2.0f, 4.0f, 2.0f);
-        //TODO remove
-        private float height = -2.0f;
+        private Vector3 lightpos = new Vector3(0.0f, 5.0f, 0.0f);
 
 		#endregion
 
@@ -107,44 +106,7 @@ namespace SplineCAD.Data
 			InitializeShaders();
 			InitializeMeshes();
 
-
-
-			//var pt1 = vector3Points.CreatePoint();
-			//pt1.Position = new Vector3(1.0f, 1.0f, 1.0f);
-
-			//var pt2 = vector3Points.CreatePoint();
-			//pt2.Position = new Vector3(-1.0f, -1.0f, 1.0f);
-
-			//var pt3 = vector3Points.CreatePoint();
-			//pt3.Position = new Vector3(1.0f, -1.0f, 1.0f);
-
-			//var pt4 = vector3Points.CreatePoint();
-			//pt4.Position = new Vector3(-1.0f, 1.0f, 1.0f);
-
-			//var pt5 = vector3Points.CreatePoint();
-			//pt5.Position = new Vector3(1.0f, 1.0f, -1.0f);
-
-			//var pt6 = vector3Points.CreatePoint();
-			//pt6.Position = new Vector3(-1.0f, -1.0f, -1.0f);
-
-			//var pt7 = vector3Points.CreatePoint();
-			//pt7.Position = new Vector3(1.0f, -1.0f, -1.0f);
-
-			//var pt8 = vector3Points.CreatePoint();
-			//pt8.Position = new Vector3(-1.0f, 1.0f, -1.0f);
-
-
-
 			camera = new Camera(new Vector3(0.0f, 0.0f, 5.0f));
-
-            //CreateNurbsMesh();
-            CreateNurbsMesh();
-            height += 2.0f;
-
-            CreateBSplineMesh();
-            height += 2.0f;
-
-            CreateTsplineMesh();
         }
 
 		private void InitializeShaders()
@@ -208,16 +170,27 @@ namespace SplineCAD.Data
 		{
 			var points = new IPoint<Vector3>[4 + 3, 4 + 3];
 
+            SurfacePopup popup = new SurfacePopup();
+            popup.ShowDialog();
+            if (popup.cancelled)
+                return;
 
+            Vector3 position = new Vector3((float)popup.UD_posX.Value, (float)popup.UD_posY.Value, (float)popup.UD_posZ.Value);
+            Color clr = (Color)popup.clrPicker.SelectedColor;
+            float width = (float)popup.UD_width.Value;
+            float height = (float)popup.UD_height.Value;
 
-			for (int i = 0; i < 4 + 3; i++)
-			for (int j = 0; j < 4 + 3; j++)
-			{
-
-				points[i, j] = CreatePoint();
-				points[i, j].Position = new Vector3(i, (float)Math.Sin(0.5 * i) + height, j);
-			}
-			var bspline = new BSplineSurface(this, Shaders["BsplineShader"], Shaders["LineShader"], points);
+            for (int i = 0; i < 4 + 3; i++)
+            {
+                float u = -width / 2 + (i*width) / 7;
+                for (int j = 0; j < 4 + 3; j++)
+                {
+                    float v = -height / 2 + (j * height) / 7;
+                    points[i, j] = CreatePoint();
+                    points[i, j].Position = new Vector3(position.X + u, position.Y, position.Z + v);
+                }
+            }			    
+			var bspline = new BSplineSurface(this, Shaders["BsplineShader"], Shaders["LineShader"], points, clr);
 			SceneObjects.Add(bspline);
 
 		}
@@ -225,27 +198,56 @@ namespace SplineCAD.Data
 		private void CreateNurbsMesh()
 		{
 			var points = new IPoint<Vector4>[4 + 3, 4 + 3];
-			for (int i = 0; i < 4 + 3; i++)
-			for (int j = 0; j < 4 + 3; j++)
-			{
 
-				points[i, j] = CreateRationalPoint();
-				points[i, j].Position = new Vector4(i, (float)Math.Sin(0.5 * i) + height, j, 1);
-			}
-			var bspline = new NurbsSurface(this, Shaders["NurbsShader"], Shaders["RationalLineShader"], points);
+            SurfacePopup popup = new SurfacePopup();
+            popup.ShowDialog();
+            if (popup.cancelled)
+                return;
+
+            Vector3 position = new Vector3((float)popup.UD_posX.Value, (float)popup.UD_posY.Value, (float)popup.UD_posZ.Value);
+            Color clr = (Color)popup.clrPicker.SelectedColor;
+            float width = (float)popup.UD_width.Value;
+            float height = (float)popup.UD_height.Value;
+
+            for (int i = 0; i < 4 + 3; i++)
+            {
+                float u = -width / 2 + (i * width) / 7;
+                for (int j = 0; j < 4 + 3; j++)
+                {
+                    float v = -height / 2 + (j * height) / 7;
+                    points[i, j] = CreateRationalPoint();
+                    points[i, j].Position = new Vector4(position.X + u, position.Y, position.Z + v, 1);
+                }
+            }
+			var bspline = new NurbsSurface(this, Shaders["NurbsShader"], Shaders["RationalLineShader"], points, clr);
 			SceneObjects.Add(bspline);
 		}
 
 		private void CreateTsplineMesh()
 		{
-			var points = new IPoint<Vector4>[4 + 3, 4 + 3];
-			for (int i = 0; i < 4 + 3; i++)
-			for (int j = 0; j < 4 + 3; j++)
-			{
+            SurfacePopup popup = new SurfacePopup();
+            popup.ShowDialog();
+            if (popup.cancelled)
+                return;
 
-				points[i, j] = CreateRationalPoint();
-				points[i, j].Position = new Vector4(i, (float)Math.Sin(0.5 * i) + height, j, 1);
-			}
+            Vector3 position = new Vector3((float)popup.UD_posX.Value, (float)popup.UD_posY.Value, (float)popup.UD_posZ.Value);
+            Color clr = (Color)popup.clrPicker.SelectedColor;
+            float width = (float)popup.UD_width.Value;
+            float height = (float)popup.UD_height.Value;
+
+            var points = new IPoint<Vector4>[4 + 3, 4 + 3];
+
+            for (int i = 0; i < 4 + 3; i++)
+            {
+                float u = -width / 2 + (i * width) / 7;
+                for (int j = 0; j < 4 + 3; j++)
+                {
+                    float v = -height / 2 + (j * height) / 7;
+
+                    points[i, j] = CreateRationalPoint();
+                    points[i, j].Position = new Vector4(position.X + u, position.Y, position.Z + v, 1);
+                }
+            }
 			var bspline = new TSplineSurface(this, Shaders["TsplineShader"], Shaders["RationalLineShader"], points);
 			SceneObjects.Add(bspline);
 		}
