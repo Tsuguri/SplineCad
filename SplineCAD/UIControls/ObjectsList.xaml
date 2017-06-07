@@ -8,13 +8,15 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid >
         <Grid.RowDefinitions>
-            <RowDefinition Height="20"/>
+            <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="45"/>
+            <ColumnDefinition Width="60"/>
         </Grid.ColumnDefinitions>
+
+        <Label VerticalAlignment="Center" Content="Objects List:"/>
         <Button Grid.Row="0" Grid.Column="1" Content="Remove" Command="{Binding RemoveSelectedCommand}" />
         <ListView MinHeight="100" Grid.Row="1" Grid.ColumnSpan="2" Grid.Column="0" ItemsSource="{Binding SceneObjects}" SelectedItem="{Binding Path=SelectedModel, Mode=TwoWay}">
             <ListView.ItemTemplate>

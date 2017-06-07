@@ -53,12 +53,16 @@ namespace SplineCAD.Objects
             
             SurfaceColor = clr;
 			mesh = new Vector3RectangesPolygonMesh(points);
-			surfaceMesh = new SurfaceMesh(10, 10);
+			surfaceMesh = new SurfaceMesh((uint)PatchDivX, (uint)PatchDivY);
 
-		}
+        }
 
 		public override void CleanUp()
 		{
+            foreach(var p in points)
+            {
+                sceneData.Vector3Points.RemovePoint(p);
+            }
 			mesh.Dispose();
 			surfaceMesh.Dispose();
 		}
