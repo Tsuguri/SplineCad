@@ -11,6 +11,7 @@ using OpenTK.Graphics.OpenGL;
 using SplineCAD.Data;
 using SplineCAD.Rendering;
 using SplineCAD.Utilities;
+using System.Windows.Media;
 
 namespace SplineCAD.Objects
 {
@@ -198,13 +199,14 @@ namespace SplineCAD.Objects
 			divChanged = true;
 		}
 
-		public TSplineSurface(MainDataContext data, Shader surfaceShader, Shader polygonShader, IPoint<Vector4>[,] controlPoints)
+		public TSplineSurface(MainDataContext data, Shader surfaceShader, Shader polygonShader, IPoint<Vector4>[,] controlPoints, Color clr)
 		{
 			this.sceneData = data;
 			this.surfaceShader = surfaceShader;
 			this.polygonShader = polygonShader;
 
 			this.Name = "T-Spline " + (++count).ToString();
+            SurfaceColor = clr;
 
 			var ptsX = controlPoints.GetLength(0);
 			var ptsY = controlPoints.GetLength(1);

@@ -256,7 +256,7 @@ namespace SplineCAD.Data
                     points[i, j].Position = new Vector4(position.X + u, position.Y, position.Z + v, 1);
                 }
             }
-			var tspline = new TSplineSurface(this, Shaders["TsplineShader"], Shaders["RationalLineShader"], points);
+			var tspline = new TSplineSurface(this, Shaders["TsplineShader"], Shaders["RationalLineShader"], points, clr);
 			SceneObjects.Add(tspline);
 		}
 
