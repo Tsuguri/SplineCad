@@ -4,10 +4,10 @@ out vec4 color;
 
 uniform vec3 lightPos;
 uniform vec3 surfColor;
+uniform vec3 camPos;
 
 in vec3 vNormal;
 in vec3 vWorldPos;
-in vec3 vView;
 
 const vec3 ambientColor = vec3(0.2f, 0.2f, 0.2f);
 const vec3 lightColor = vec3(1.0f, 1.0f, 1.0f);
@@ -17,14 +17,15 @@ const float m = 100.0f;
 
 void main()
 {
+	vec3 viewVec = normalize(camPos - vWorldPos);
 	vec3 clr = surfColor * ambientColor;
 	vec3 lightVec = normalize(lightPos - vWorldPos);
-	vec3 halfVec = normalize(vView + lightVec);
+	vec3 halfVec = normalize(viewVec + lightVec);
 
 	clr += lightColor * surfColor * kd * clamp(dot(vNormal, lightVec), 0.0f, 1.0f);
 	float nh = clamp(dot(vNormal, halfVec), 0.0f, 1.0f);
 	nh = pow(nh, m) * ks;
     clr += lightColor * nh;
 
-	color = vec4(clr, 0.99f + 0.01f * vView.x * lightPos.x * vNormal.x * surfColor.x);
+	color = vec4(clr, 1.0f);
 } 

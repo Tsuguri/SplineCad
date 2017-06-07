@@ -20,11 +20,8 @@ uniform vec2 size;
 uniform mat4 viewMatrix;
 uniform mat4 projMatrix;
 
-uniform vec3 camPos;
-
 out vec3 vNormal;
 out vec3 vWorldPos;
-out vec3 vView;
 
 float BSplineN0(float from, float to, float t)
 {
@@ -118,7 +115,6 @@ void main()
 	vec3 posV = tsplineV.xyz / tsplineV.w;
 
 	vWorldPos = result;
-	vView = normalize(camPos - result);
 	vNormal = normalize(cross(posV - result, posU - result));
 	//if(tsplineValue.length()<0.01)
 	//result = vec3(position.x, tsplineValue.w, position.y);
