@@ -136,9 +136,11 @@ namespace SplineCAD.Objects
 
             var camPos = surfaceShader.GetUniformLocation("camPos");
             var lightPos = surfaceShader.GetUniformLocation("lightPos");
+            var surfColor = surfaceShader.GetUniformLocation("surfColor");
 
             surfaceShader.Bind(lightPos, sceneData.LightPos);
             surfaceShader.Bind(camPos, sceneData.MainCamera.Position);
+            surfaceShader.Bind(surfColor, (new Vector3(SurfaceColor.R, SurfaceColor.G, SurfaceColor.B)).Normalized());
 
             var vs = new List<float> { vDivs[0].Value * 3 - vDivs[1].Value*2, vDivs[0].Value * 2 -  vDivs[1].Value }.Concat(vDivs.Select(x=>x.Value))
 				.Concat(new List<float>

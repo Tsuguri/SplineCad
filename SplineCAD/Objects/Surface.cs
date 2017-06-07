@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SplineCAD.Rendering;
+using OpenTK;
+using System.Windows.Media;
 
 namespace SplineCAD.Objects
 {
@@ -64,7 +66,19 @@ namespace SplineCAD.Objects
 			}
 		}
 
-		protected virtual void PatchDivChanged()
+        private Color surfaceclr = Colors.Turquoise;
+
+        public Color SurfaceColor
+        {
+            get => surfaceclr;
+            set
+            {
+                surfaceclr = value;
+                OnPropertyChanged();
+            }
+        }
+
+        protected virtual void PatchDivChanged()
 		{
 		}
 

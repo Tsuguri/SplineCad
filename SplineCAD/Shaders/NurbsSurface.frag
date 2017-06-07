@@ -3,12 +3,12 @@
 out vec4 color;
 
 uniform vec3 lightPos;
+uniform vec3 surfColor;
 
 in vec3 vNormal;
 in vec3 vWorldPos;
 in vec3 vView;
 
-const vec3 surfColor = vec3(0.2f, 0.5f, 0.5f);
 const vec3 ambientColor = vec3(0.2f, 0.2f, 0.2f);
 const vec3 lightColor = vec3(1.0f, 1.0f, 1.0f);
 const float kd = 0.6f;

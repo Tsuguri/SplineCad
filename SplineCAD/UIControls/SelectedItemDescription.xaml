@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:local="clr-namespace:SplineCAD.UIControls"
              xmlns:models="clr-namespace:SplineCAD.Objects"
              mc:Ignorable="d" 
@@ -14,6 +15,7 @@
                     <DataTemplate DataType="{x:Type models:BSplineSurface}" >
                         <Grid>
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="25" />
                                 <RowDefinition Height="25" />
                                 <RowDefinition Height="25" />
                                 <RowDefinition Height="25" />
@@ -31,8 +33,10 @@
                             <ToggleButton Grid.Row="1" Grid.Column="1" IsChecked="{Binding PolygonVisible}" />
                             <TextBlock Grid.Row="2">Fill Surface</TextBlock>
                             <ToggleButton Grid.Row="2" Grid.Column="1" IsChecked="{Binding FillSurface}" />
-                            <TextBlock Grid.Row="3">PatchDiv</TextBlock>
-                            <Grid Grid.Row="3" Grid.Column="1">
+                            <TextBlock Grid.Row="3">Surface Color</TextBlock>
+                            <xctk:ColorPicker Grid.Row="3" Grid.Column="1" SelectedColor="{Binding SurfaceColor}"></xctk:ColorPicker>
+                            <TextBlock Grid.Row="4">PatchDiv</TextBlock>
+                            <Grid Grid.Row="4" Grid.Column="1">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="*" />
@@ -65,8 +69,10 @@
                             <ToggleButton Grid.Row="1" Grid.Column="1" IsChecked="{Binding PolygonVisible}" />
                             <TextBlock Grid.Row="2" Grid.Column="0">Fill Surface</TextBlock>
                             <ToggleButton Grid.Row="2" Grid.Column="1" IsChecked="{Binding FillSurface}" />
-                            <TextBlock Grid.Row="3" Grid.Column="0">PatchDiv</TextBlock>
-                            <Grid Grid.Row="3" Grid.Column="1">
+                            <TextBlock Grid.Row="3">Surface Color</TextBlock>
+                            <xctk:ColorPicker Grid.Row="3" Grid.Column="1" SelectedColor="{Binding SurfaceColor}"></xctk:ColorPicker>
+                            <TextBlock Grid.Row="4" Grid.Column="0">PatchDiv</TextBlock>
+                            <Grid Grid.Row="4" Grid.Column="1">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="*" />

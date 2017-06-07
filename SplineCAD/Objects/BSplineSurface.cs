@@ -93,10 +93,11 @@ namespace SplineCAD.Objects
 
             var camPos = surfaceShader.GetUniformLocation("camPos");
             var lightPos = surfaceShader.GetUniformLocation("lightPos");
+            var surfColor = surfaceShader.GetUniformLocation("surfColor");
 
             surfaceShader.Bind(lightPos, sceneData.LightPos);
             surfaceShader.Bind(camPos, sceneData.MainCamera.Position);
-
+            surfaceShader.Bind(surfColor, (new Vector3(SurfaceColor.R, SurfaceColor.G, SurfaceColor.B)).Normalized());
 			//draw every patch
 			for (int i = 0; i < patchesX; i++)
 			{
