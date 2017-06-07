@@ -47,7 +47,7 @@ namespace SplineCAD.Objects
 			divChanged = true;
 		}
 
-		public NurbsSurface(MainDataContext data, Shader surfaceShader, Shader polygonShader, IPoint<Vector4>[,] controlPoints)
+		public NurbsSurface(MainDataContext data, Shader surfaceShader, Shader polygonShader, IPoint<Vector4>[,] controlPoints, List<float> uDivs = null, List<float> vDivs = null)
 		{
 			this.sceneData = data;
 			this.surfaceShader = surfaceShader;
@@ -62,18 +62,33 @@ namespace SplineCAD.Objects
 			mesh = new Vector4RectangesPolygonMesh(points);
 			surfaceMesh = new SurfaceMesh((uint)PatchDivX, (uint)PatchDivY);
 
-			uDivs = new ObservableCollection<FloatWrapper>();
-			vDivs = new ObservableCollection<FloatWrapper>();
+			this.uDivs = new ObservableCollection<FloatWrapper>();
+			this.vDivs = new ObservableCollection<FloatWrapper>();
 
 			float uStep = 1 / (float)(pointsX - 1);
 			float vStep = 1 / (float)(pointsY - 1);
 
-			for (int i = 0; i < pointsX; i++)
-				uDivs.Add(new FloatWrapper(i * uStep));
-			for (int i = 0; i < pointsY; i++)
-				vDivs.Add(new FloatWrapper(i * vStep));
+			if (uDivs == null || uDivs.Count != pointsX)
+			{
+				uDivs=new List<float>();
+				for (int i = 0; i < pointsX; i++)
+					uDivs.Add(i * uStep);
+			}
+			if (vDivs == null || vDivs.Count != pointsY)
+			{
+				vDivs = new List<float>();
+				for (int i = 0; i < pointsY; i++)
+					vDivs.Add(i * vStep);
+			}
 
-
+			foreach (var uDiv in uDivs)
+			{
+				this.uDivs.Add(new FloatWrapper(uDiv));
+			}
+			foreach (var vDiv in vDivs)
+			{
+				this.vDivs.Add(new FloatWrapper(vDiv));
+			}
 		}
 
 		public override void CleanUp()

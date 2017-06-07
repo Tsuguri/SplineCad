@@ -549,5 +549,18 @@ namespace SplineCAD.Objects
 			surfaceShader.Bind(size, new Vector2(1, 1));
 			surfaceMesh.Render();
 		}
+
+		public NurbsSurface ConvertToNurbs()
+		{
+			var uDivs = vLines.Select(x => x.Value).Distinct().ToList();
+			var vDivs = uLines.Select(x => x.Value).Distinct().ToList();
+
+			var pts = new IPoint<Vector4>[uDivs.Count, vDivs.Count];
+
+			var uL = uLines.OrderBy(x => x.Value).ToList();
+			var vL = vLines.OrderBy(x => x.Value).ToList();
+
+			return new NurbsSurface(sceneData, surfaceShader, polygonShader, pts, uDivs, vDivs);
+		}
 	}
 }

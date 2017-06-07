@@ -173,10 +173,11 @@ namespace SplineCAD.Utilities
             List<List<string>> surfacesParameters = new List<List<string>>();
             foreach(Model m in models)
             {
-                if (m is TSplineSurface)
-                    return false;
+	            var em = m;
+                if (em is TSplineSurface)
+                    em = (em as TSplineSurface).ConvertToNurbs();
 
-                int paramLines = GetParameterLinesCount(m);
+                int paramLines = GetParameterLinesCount(em);
 
                 //Add rational b-spline type
                 contents.Add("128".PadLeft(8, ' ') + "1".PadLeft(8, ' ') +
@@ -191,7 +192,7 @@ namespace SplineCAD.Utilities
                              "0".PadLeft(8, ' ') + "".PadLeft(8, ' ') +
                              "".PadLeft(8, ' ') + "".PadLeft(8, ' ') +
                              "".PadLeft(8, ' ') + "D" + (++idxD).ToString().PadLeft(7, '0'));
-                switch (m)
+                switch (em)
                 {
                     case NurbsSurface ns:
                         surfacesParameters.Add(FillNurbsSurfaceParameters(ns, ref idxP, objIndex));
