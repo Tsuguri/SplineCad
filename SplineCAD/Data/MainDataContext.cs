@@ -143,7 +143,7 @@ namespace SplineCAD.Data
             CreateBSplineMesh();
             height += 2.0f;
 
-            //CreateNurbsMesh();
+            CreateNurbsMesh();
             //CreateTsplineMesh();
         }
 

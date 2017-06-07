@@ -134,7 +134,13 @@ namespace SplineCAD.Objects
 			var tv6 = surfaceShader.GetUniformLocation("tv6");
 			var tv7 = surfaceShader.GetUniformLocation("tv7");
 
-			var vs = new List<float> { vDivs[0].Value * 3 - vDivs[1].Value*2, vDivs[0].Value * 2 -  vDivs[1].Value }.Concat(vDivs.Select(x=>x.Value))
+            var camPos = surfaceShader.GetUniformLocation("camPos");
+            var lightPos = surfaceShader.GetUniformLocation("lightPos");
+
+            surfaceShader.Bind(lightPos, sceneData.LightPos);
+            surfaceShader.Bind(camPos, sceneData.MainCamera.Position);
+
+            var vs = new List<float> { vDivs[0].Value * 3 - vDivs[1].Value*2, vDivs[0].Value * 2 -  vDivs[1].Value }.Concat(vDivs.Select(x=>x.Value))
 				.Concat(new List<float>
 				{
 					vDivs[vDivs.Count - 1].Value * 2 - vDivs[vDivs.Count - 2].Value,
@@ -149,7 +155,7 @@ namespace SplineCAD.Objects
 					uDivs[uDivs.Count - 1].Value * 2 - uDivs[uDivs.Count - 3].Value
 				})
 				.ToList();
-
+             
 			//draw every patch
 			for (int i = 0; i < patchesX; i++)
 			{
