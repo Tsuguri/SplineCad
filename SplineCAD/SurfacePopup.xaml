@@ -6,9 +6,10 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:SplineCAD"
         mc:Ignorable="d"
-        Title="Surface Creation" Height="120" Width="250" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow">
+        Title="Surface Creation" Height="180" Width="260" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" WindowStyle="ToolWindow">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition/>
             <RowDefinition/>
             <RowDefinition/>
             <RowDefinition/>
@@ -33,10 +34,14 @@
         <xctk:DoubleUpDown Grid.Row="1" Grid.Column="1" Increment="0.5" x:Name="UD_width" Minimum="1" VerticalAlignment="Center" Value="5"/>
         <xctk:DoubleUpDown Grid.Row="1" Grid.Column="3" Increment="0.5" x:Name="UD_height" Minimum="1" VerticalAlignment="Center" Value="5"/>
 
+        <Label x:Name="ULabel" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" Content="PatchesU:"/>
+        <Label x:Name="VLabel" Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Left" Content="PatchesV:"/>
+        <xctk:IntegerUpDown Grid.Row="2" Grid.Column="1" Increment="1" x:Name="UD_patchesU" Minimum="1" VerticalAlignment="Center" Value="4"/>
+        <xctk:IntegerUpDown Grid.Row="2" Grid.Column="3" Increment="1" x:Name="UD_patchesV" Minimum="1" VerticalAlignment="Center" Value="4"/>
+        
+        <Label x:Name="colorLabel" Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Left" Content="Colour:"/>
+        <xctk:ColorPicker Name="clrPicker" Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" SelectedColor="Turquoise"></xctk:ColorPicker>
 
-        <Label x:Name="colorLabel" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Left" Content="Colour:"/>
-        <xctk:ColorPicker Name="clrPicker" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" SelectedColor="Turquoise"></xctk:ColorPicker>
-
-        <Button Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Click="Button_Click" >Create</Button>
+        <Button Grid.Row="3" Grid.Column="2" Grid.ColumnSpan="2" Click="Button_Click" Margin="2 2 2 2">Create</Button>
     </Grid>
 </Window>

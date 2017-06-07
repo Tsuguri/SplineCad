@@ -77,8 +77,8 @@ namespace SplineCAD.Utilities
                     (++idx).ToString().PadLeft(7, '0'));
 
                 //add weights
-                for (int i = 0; i < surf.Points.GetLength(0); i++)
-                    for (int j = 0; j < surf.Points.GetLength(1); j++)
+                for (int i = 0; i < surf.Points.GetLength(1); i++)
+                    for (int j = 0; j < surf.Points.GetLength(0); j++)
                     {
                         ret.Add((surf.Points[j, i].Position.W.ToString() + ",").PadRight(64, ' ') +
                         objIdx.ToString().PadLeft(8) + "P" +
@@ -86,8 +86,8 @@ namespace SplineCAD.Utilities
                     }
 
                 //add points coords
-                for (int i = 0; i < surf.Points.GetLength(0); i++)
-                    for (int j = 0; j < surf.Points.GetLength(1); j++)
+                for (int i = 0; i < surf.Points.GetLength(1); i++)
+                    for (int j = 0; j < surf.Points.GetLength(0); j++)
                     {
                         Vector4 p = surf.Points[j, i].Position;
                         ret.Add((p.X.ToString() + ", " +
@@ -130,16 +130,16 @@ namespace SplineCAD.Utilities
 
 
                 //add weights
-                for (int i = 0; i < surf.Points.GetLength(0); i++)
-                    for (int j = 0; j < surf.Points.GetLength(1); j++)
+                for (int i = 0; i < surf.Points.GetLength(1); i++)
+                    for (int j = 0; j < surf.Points.GetLength(0); j++)
                     {
                         ret.Add("1.0,".PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
                         (++idx).ToString().PadLeft(7, '0'));
                     }
 
                 //add points coords
-                for (int i = 0; i < surf.Points.GetLength(0); i++)
-                    for (int j = 0; j < surf.Points.GetLength(1); j++)
+                for (int i = 0; i < surf.Points.GetLength(1); i++)
+                    for (int j = 0; j < surf.Points.GetLength(0); j++)
                     {
                         Vector3 p = surf.Points[j, i].Position;
                         ret.Add((p.X.ToString() + ", " +
