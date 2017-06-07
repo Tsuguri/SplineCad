@@ -579,14 +579,14 @@ namespace SplineCAD.Objects
 				}
 			}
 
-			IPoint<Vector4>[,] pts = new IPoint<Vector4>[uDivs.Count, vDivs.Count];
+			IPoint<Vector4>[,] pts = new IPoint<Vector4>[uDivs.Count + 2, vDivs.Count + 2];
 
 			foreach (var tsplinePoint in tsplinePoints)
 			{
 				var pt = sceneData.CreateRationalPoint(tsplinePoint.Position);
 				var i = uDivs.IndexOf(tsplinePoint.U);
 				var j = vDivs.IndexOf(tsplinePoint.V);
-				pts[i, j] = pt;
+				pts[i + 1, j + 1] = pt;
 			}
 			foreach (var vLine in vFilled)
 			{
@@ -594,7 +594,7 @@ namespace SplineCAD.Objects
 				int nextFilled = 0;
 				for (int i = 0; i < uDivs.Count; i++)
 				{
-					if (pts[i, vLine] == null)
+					if (pts[i + 1, vLine + 1] == null)
 					{
 						if (nextFilled < i)
 						{
@@ -602,17 +602,17 @@ namespace SplineCAD.Objects
 							do
 							{
 								nextFilled++;
-							} while (pts[nextFilled, vLine] == null);
+							} while (pts[nextFilled + 1, vLine + 1] == null);
 						}
 
-						var prev = pts[lastFilled, vLine];
-						var next = pts[nextFilled, vLine];
+						var prev = pts[lastFilled + 1, vLine + 1];
+						var next = pts[nextFilled + 1, vLine + 1];
 						var prevVal = uDivs[lastFilled];
 						var nextVal = uDivs[nextFilled];
 						var val = uDivs[i];
 						var t = (val - prevVal) / (nextVal - prevVal);
 						var pos = prev.Position * (1 - t) + next.Position * t;
-						pts[i, vLine] = sceneData.CreateRationalPoint(pos);
+						pts[i + 1, vLine + 1] = sceneData.CreateRationalPoint(pos);
 					}
 					else
 					{
@@ -627,7 +627,7 @@ namespace SplineCAD.Objects
 				int nextFilled = 0;
 				for (int j = 0; j < vDivs.Count; j++)
 				{
-					if (pts[i, j] == null)
+					if (pts[i + 1, j + 1] == null)
 					{
 						if (nextFilled < j)
 						{
@@ -635,17 +635,17 @@ namespace SplineCAD.Objects
 							do
 							{
 								nextFilled++;
-							} while (pts[i, nextFilled] == null);
+							} while (pts[i + 1, nextFilled + 1] == null);
 						}
 
-						var prev = pts[i, lastFilled];
-						var next = pts[i, nextFilled];
+						var prev = pts[i + 1, lastFilled + 1];
+						var next = pts[i + 1, nextFilled + 1];
 						var prevVal = vDivs[lastFilled];
 						var nextVal = vDivs[nextFilled];
 						float val = vDivs[j];
 						var t = (val - prevVal) / (nextVal - prevVal);
 						var pos = prev.Position * (1 - t) + next.Position * t;
-						pts[i, j] = sceneData.CreateRationalPoint(pos);
+						pts[i + 1, j + 1] = sceneData.CreateRationalPoint(pos);
 					}
 					else
 					{
@@ -653,6 +653,25 @@ namespace SplineCAD.Objects
 					}
 				}
 			}
+
+			for (int i = 0; i < uDivs.Count; i++)
+			{
+				pts[i + 1, 0] = pts[i + 1, 1];
+				pts[i + 1, vDivs.Count + 1] = pts[i + 1, vDivs.Count];
+			}
+			for (int j = 0; j < vDivs.Count; j++)
+			{
+				pts[0, j + 1] = pts[1, j + 1];
+				pts[uDivs.Count + 1, j + 1] = pts[uDivs.Count, j + 1];
+			}
+			pts[0, 0] = pts[1, 1];
+			pts[uDivs.Count + 1, vDivs.Count + 1] = pts[uDivs.Count, vDivs.Count];
+			pts[uDivs.Count + 1, 0] = pts[uDivs.Count, 1];
+			pts[0, vDivs.Count + 1] = pts[1, vDivs.Count];
+
+
+			uDivs = new List<float>{-0.001f}.Concat(uDivs).Concat(new List<float>{1.001f}).ToList();
+			vDivs = new List<float>{-0.001f}.Concat(vDivs).Concat(new List<float>{1.001f}).ToList();
 
 			var p = new NurbsSurface(sceneData, surfaceShader, polygonShader, pts, SurfaceColor, uDivs, vDivs);
 			sceneData.AddModel(p);
