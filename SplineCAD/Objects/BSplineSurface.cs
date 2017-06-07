@@ -59,6 +59,10 @@ namespace SplineCAD.Objects
 
 		public override void CleanUp()
 		{
+            foreach(var p in points)
+            {
+                sceneData.Vector3Points.RemovePoint(p);
+            }
 			mesh.Dispose();
 			surfaceMesh.Dispose();
 		}

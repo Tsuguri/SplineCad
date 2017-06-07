@@ -490,7 +490,12 @@ namespace SplineCAD.Objects
 
 		public override void CleanUp()
 		{
-			selfMesh.Dispose();
+            foreach (var p in tsplinePoints)
+            {
+                sceneData.Vector4Points.RemovePoint(p.Point);
+            }
+
+            selfMesh.Dispose();
 			surfaceMesh.Dispose();
 		}
 
