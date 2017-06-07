@@ -516,7 +516,15 @@ namespace SplineCAD.Objects
 
 			surfaceShader.Activate();
 
-			for (var i = 0; i < tsplinePoints.Count; i++)
+            var camPos = surfaceShader.GetUniformLocation("camPos");
+            var lightPos = surfaceShader.GetUniformLocation("lightPos");
+            var surfColor = surfaceShader.GetUniformLocation("surfColor");
+
+            surfaceShader.Bind(lightPos, sceneData.LightPos);
+            surfaceShader.Bind(camPos, sceneData.MainCamera.Position);
+            surfaceShader.Bind(surfColor, (new Vector3(SurfaceColor.R, SurfaceColor.G, SurfaceColor.B)).Normalized());
+
+            for (var i = 0; i < tsplinePoints.Count; i++)
 			{
 				var tsplinePoint = tsplinePoints[i];
 				var loc = $"functions[{i}].";

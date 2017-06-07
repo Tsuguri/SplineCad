@@ -44,9 +44,9 @@ namespace SplineCAD.Data
 
 		private Camera camera;
 
-        private Vector3 lightpos = new Vector3(0.0f, 4.0f, 1.0f);
+        private Vector3 lightpos = new Vector3(2.0f, 4.0f, 2.0f);
         //TODO remove
-        private float height = 0.0f;
+        private float height = -2.0f;
 
 		#endregion
 
@@ -138,13 +138,13 @@ namespace SplineCAD.Data
 			camera = new Camera(new Vector3(0.0f, 0.0f, 5.0f));
 
             //CreateNurbsMesh();
+            CreateNurbsMesh();
             height += 2.0f;
 
             CreateBSplineMesh();
             height += 2.0f;
 
-            CreateNurbsMesh();
-            //CreateTsplineMesh();
+            CreateTsplineMesh();
         }
 
 		private void InitializeShaders()
@@ -244,7 +244,7 @@ namespace SplineCAD.Data
 			{
 
 				points[i, j] = CreateRationalPoint();
-				points[i, j].Position = new Vector4(i, (float)Math.Sin(0.5 * i), j, 1);
+				points[i, j].Position = new Vector4(i, (float)Math.Sin(0.5 * i) + height, j, 1);
 			}
 			var bspline = new TSplineSurface(this, Shaders["TsplineShader"], Shaders["RationalLineShader"], points);
 			SceneObjects.Add(bspline);

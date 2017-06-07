@@ -20,6 +20,12 @@ uniform vec2 size;
 uniform mat4 viewMatrix;
 uniform mat4 projMatrix;
 
+uniform vec3 camPos;
+
+out vec3 vNormal;
+out vec3 vWorldPos;
+out vec3 vView;
+
 float BSplineN0(float from, float to, float t)
 {
 	return (t >= from && t < to) ? 1.0 : 0.0;
@@ -49,6 +55,20 @@ float EvaluateFunction(float t, float start, vec4 divs)
 	return v0;
 }
 
+float EvaluateDerivative(float t, float start, vec4 divs)
+{
+	float v0 = BSplineN0(start, divs.x, t);
+	float v1 = BSplineN0(divs.x, divs.y, t);
+	float v2 = BSplineN0(divs.y, divs.z, t);
+
+	v0 = BSplineMix(start, divs.x, divs.x, divs.y, t, v0, v1, 1);
+	v1 = BSplineMix(divs.x, divs.y, divs.y, divs.z, t, v1, v2, 1);
+
+	v0 = BSplineMix(start, divs.y, divs.x, divs.z, t, v0, v1, 2);
+
+	return v0;
+}
+
 vec4 NurbsVal(vec4 value)
 {
 	return vec4(value.x*value.w, value.y*value.w, value.z*value.w,value.w);
@@ -62,18 +82,44 @@ vec4 EvaluateTsplinePoint(vec4 point, float uStart, vec4 uDiv, float vStart, vec
 	return pt * vFun * uFun;
 }
 
+vec4 EvaluateTsplinePointU(vec4 point, float uStart, vec4 uDiv, float vStart, vec4 vDiv, vec2 uv)
+{
+	vec4 pt = NurbsVal(point);
+	float uFun = EvaluateDerivative(uv.x, uStart, uDiv);
+	float vFun = EvaluateFunction(uv.y, vStart, vDiv);
+	return pt * vFun * uFun;
+}
+
+vec4 EvaluateTsplinePointV(vec4 point, float uStart, vec4 uDiv, float vStart, vec4 vDiv, vec2 uv)
+{
+	vec4 pt = NurbsVal(point);
+	float uFun = EvaluateFunction(uv.x, uStart, uDiv);
+	float vFun = EvaluateDerivative(uv.y, vStart, vDiv);
+	return pt * vFun * uFun;
+}
+
 void main()
 {
 	vec2 uv = vec2(position.x * size.x, position.y * size.y);
 
 	vec4 tsplineValue = vec4(0.0, 0.0, 0.0, 0.0);
+	vec4 tsplineU = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+	vec4 tsplineV = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
 	for(int i = 0; i < usedPoints; i++)
 	{
 		tsplineValue += EvaluateTsplinePoint(functions[i].controlPoint, functions[i].uStart, functions[i].uDistances, functions[i].vStart, functions[i].vDistances, uv);
+		tsplineU += EvaluateTsplinePointU(functions[i].controlPoint, functions[i].uStart, functions[i].uDistances, functions[i].vStart, functions[i].vDistances, uv);
+		tsplineV += EvaluateTsplinePointV(functions[i].controlPoint, functions[i].uStart, functions[i].uDistances, functions[i].vStart, functions[i].vDistances, uv);
+
 	}
 	vec3 result = tsplineValue.xyz / tsplineValue.w;
+	vec3 posU = tsplineU.xyz / tsplineU.w;
+	vec3 posV = tsplineV.xyz / tsplineV.w;
 
+	vWorldPos = result;
+	vView = normalize(camPos - result);
+	vNormal = normalize(cross(posV - result, posU - result));
 	//if(tsplineValue.length()<0.01)
 	//result = vec3(position.x, tsplineValue.w, position.y);
     gl_Position = vec4(result, 1.0) * viewMatrix * projMatrix;
