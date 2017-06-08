@@ -35,7 +35,7 @@ namespace SplineCAD.Objects
 			}
 		}
 
-		private class PointWrapper
+		public class PointWrapper : BindableObject
 		{
 			private readonly IPoint<Vector4> point;
 			private readonly float u;
@@ -47,6 +47,18 @@ namespace SplineCAD.Objects
 			public Vector4 UDistances { get; private set; }
 			public Vector4 VDistances { get; private set; }
 
+
+			public float W
+			{
+				get => point.Position.W;
+				set
+				{
+					var tmp = point.Position;
+					tmp.W = value;
+					point.Position = tmp;
+					OnPropertyChanged();
+				}
+			}
 
 			public float U => u;
 			public float V => v;
