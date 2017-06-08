@@ -141,7 +141,11 @@
                             <local:NumericSlider Grid.Row="6" Grid.Column="1" Value="{Binding ValTo}" IncrementMultiplier="0.01" />
                             <Button Grid.Row="7" Grid.Column="1" Command="{Binding AddEdge}" />
                             <ListView Grid.Row="8" Grid.ColumnSpan="2" ItemsSource="{Binding TsplinePoints}">
-                                
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBox Width="40" Text="{Binding W}" />
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
                             </ListView>
                         </Grid>
                     </DataTemplate>
