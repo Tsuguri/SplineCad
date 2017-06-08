@@ -109,6 +109,7 @@
                                 <RowDefinition Height="25" />
                                 <RowDefinition Height="25" />
                                 <RowDefinition Height="25" />
+                                <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -139,6 +140,9 @@
                             <local:NumericSlider Grid.Row="6" Grid.Column="0" Value="{Binding ValFrom}" IncrementMultiplier="0.01" />
                             <local:NumericSlider Grid.Row="6" Grid.Column="1" Value="{Binding ValTo}" IncrementMultiplier="0.01" />
                             <Button Grid.Row="7" Grid.Column="1" Command="{Binding AddEdge}" />
+                            <ListView Grid.Row="8" Grid.ColumnSpan="2" ItemsSource="{Binding TsplinePoints}">
+                                
+                            </ListView>
                         </Grid>
                     </DataTemplate>
                 </ContentControl.Resources>

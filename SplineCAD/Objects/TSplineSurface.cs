@@ -114,7 +114,9 @@ namespace SplineCAD.Objects
 
 		private static int count = 0;
 
-		private List<PointWrapper> tsplinePoints;
+		private ObservableCollection<PointWrapper> tsplinePoints;
+
+		public ObservableCollection<PointWrapper> TsplinePoints => tsplinePoints;
 
 		/// <summary>
 		/// Lines with constant u value;
@@ -227,7 +229,7 @@ namespace SplineCAD.Objects
 			var vDiv = 1.0 / (ptsY - 1);
 			uLines = new List<Line>(ptsX);
 			vLines = new List<Line>(ptsY);
-			tsplinePoints = new List<PointWrapper>(ptsX * ptsY);
+			tsplinePoints = new ObservableCollection<PointWrapper>();
 
 			for (int i = 0; i < ptsX; i++)
 			{
