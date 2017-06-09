@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.IO;
 using OpenTK;
 using SplineCAD.Data;
+using System.Globalization;
 
 namespace SplineCAD.Utilities
 {
@@ -51,7 +52,7 @@ namespace SplineCAD.Utilities
 
                 for (int i = 0; i < surf.UDivs.Count; i++)
                 {
-                    ret.Add((surf.UDivs[i].Value.ToString() + ",").PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
+                    ret.Add((surf.UDivs[i].Value.ToString(CultureInfo.InvariantCulture) + ",").PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
                     (++idx).ToString().PadLeft(7, '0'));
                 }
 
@@ -68,7 +69,7 @@ namespace SplineCAD.Utilities
 
                 for (int i = 0; i < surf.VDivs.Count; i++)
                 {
-                    ret.Add((surf.VDivs[i].Value.ToString() + ",").PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
+                    ret.Add((surf.VDivs[i].Value.ToString(CultureInfo.InvariantCulture) + ",").PadRight(64, ' ') + objIdx.ToString().PadLeft(8) + "P" +
                     (++idx).ToString().PadLeft(7, '0'));
                 }
 
@@ -81,7 +82,7 @@ namespace SplineCAD.Utilities
                 for (int i = 0; i < surf.Points.GetLength(1); i++)
                     for (int j = 0; j < surf.Points.GetLength(0); j++)
                     {
-                        ret.Add((surf.Points[j, i].Position.W.ToString() + ",").PadRight(64, ' ') +
+                        ret.Add((surf.Points[j, i].Position.W.ToString(CultureInfo.InvariantCulture) + ",").PadRight(64, ' ') +
                         objIdx.ToString().PadLeft(8) + "P" +
                         (++idx).ToString().PadLeft(7, '0'));
                     }
@@ -91,9 +92,9 @@ namespace SplineCAD.Utilities
                     for (int j = 0; j < surf.Points.GetLength(0); j++)
                     {
                         Vector4 p = surf.Points[j, i].Position;
-                        ret.Add((p.X.ToString() + ", " +
-                                      p.Y.ToString() + ", " +
-                                      p.Z.ToString() + ", ").PadRight(64, ' ') +
+                        ret.Add((p.X.ToString(CultureInfo.InvariantCulture) + ", " +
+                                      p.Y.ToString(CultureInfo.InvariantCulture) + ", " +
+                                      p.Z.ToString(CultureInfo.InvariantCulture) + ", ").PadRight(64, ' ') +
                             objIdx.ToString().PadLeft(8) + "P" + (++idx).ToString().PadLeft(7, '0'));
                     }
 
@@ -143,9 +144,9 @@ namespace SplineCAD.Utilities
                     for (int j = 0; j < surf.Points.GetLength(0); j++)
                     {
                         Vector3 p = surf.Points[j, i].Position;
-                        ret.Add((p.X.ToString() + ", " +
-                                      p.Y.ToString() + ", " +
-                                      p.Z.ToString() + ", ").PadRight(64, ' ') +
+                        ret.Add((p.X.ToString(CultureInfo.InvariantCulture) + ", " +
+                                      p.Y.ToString(CultureInfo.InvariantCulture) + ", " +
+                                      p.Z.ToString(CultureInfo.InvariantCulture) + ", ").PadRight(64, ' ') +
                             objIdx.ToString().PadLeft(8) + "P" + (++idx).ToString().PadLeft(7, '0'));
                     }
 
@@ -215,8 +216,8 @@ namespace SplineCAD.Utilities
 
             //terminate
             contents.Add(("S" + "1".PadLeft(7, ' ') +
-                         "G" + "0".PadLeft(7, ' ') +
-                         "D" + "2".PadLeft(7, ' ') +
+                         "G" + "4".PadLeft(7, ' ') +
+                         "D" + (2*models.Count).ToString().PadLeft(7, ' ') +
                          "P" + idxP.ToString().PadLeft(7, ' ')).PadRight(72, ' ') +
                          "T" + "1".PadLeft(7, ' '));
 
