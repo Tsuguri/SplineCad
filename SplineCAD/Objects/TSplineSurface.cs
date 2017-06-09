@@ -53,6 +53,8 @@ namespace SplineCAD.Objects
 				get => point.Position.W;
 				set
 				{
+					if (value < 0 || value > 10)
+						return;
 					var tmp = point.Position;
 					tmp.W = value;
 					point.Position = tmp;
@@ -332,7 +334,7 @@ namespace SplineCAD.Objects
 
 			if (sameVal.Count > 0)
 			{
-				var overlapping = sameVal.FirstOrDefault(x => x.From < from && x.To > to);
+				var overlapping = sameVal.FirstOrDefault(x => x.To > from || x.From < to);
 				if (overlapping != null)
 					return;
 
